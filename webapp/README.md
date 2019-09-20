@@ -22,9 +22,5 @@ pip3 install -r requirements.txt
 
 Run the app by using 
 ```
-python app.py
-```
-or 
-```
 ./gunicornstart.sh
 ```
