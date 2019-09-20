@@ -1,6 +1,8 @@
 # Recipe Management Application 
 
 ## Setup
+
+### Python Environment
 Create a virtual environment using either of the following methods:
 - `venv` built into the IDE
 - `pipenv`
@@ -17,6 +19,12 @@ Setup working environment by running
 pip3 install -r requirements.txt
 ```
 
+### Database
+Run the following command to setup the Database
+
+```shell script
+sudo ./deploy/dbsetup.sh
+```
 
 ## Run
 
