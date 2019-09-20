@@ -17,3 +17,14 @@ Setup working environment by running
 pip3 install -r requirements.txt
 ```
 
+
+## Run
+
+Run the app by using 
+```
+python app.py
+```
+or 
+```
+./gunicornstart.sh
+```
