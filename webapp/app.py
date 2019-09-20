@@ -1,8 +1,10 @@
 from flask import Flask, Response
+from config.loggingfilter import *
 
 app = Flask(__name__)
 
 @app.route('/health', methods=['GET', 'POST'])
+@disable_logging
 def health_probe() -> Response:
     status = dict()
     status["ok"] = True
