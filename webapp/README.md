@@ -14,6 +14,6 @@ source venv/bin/activate
 
 Setup working environment by running 
 ```
-pip install requirements.txt
+pip3 install requirements.txt
 ```
 
