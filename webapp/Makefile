@@ -1,5 +1,5 @@
 .PHONY: db-shell db-setup \
-	run 
+	run git
 
 
 DB_USER ?= recp-dev
