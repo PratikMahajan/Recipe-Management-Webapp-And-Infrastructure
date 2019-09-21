@@ -23,12 +23,17 @@ pip3 install -r requirements.txt
 Run the following command to setup the Database
 
 ```shell script
-sudo ./deploy/dbsetup.sh
+make db-setup
 ```
 
 ## Run
 
-Run the app by using 
+Run the Web-app by using 
+```shell script
+make run
 ```
-./gunicornstart.sh
+
+Enter the Database shell using 
+```shell script
+make db-shell
 ```
