@@ -5,6 +5,7 @@
 DB_USER ?= rect-dev
 DB_PASSWORD ?= secretpassword
 
+
 db-shell:
 	mysql -u $(DB_USER) --password="$(DB_PASSWORD)"
 
