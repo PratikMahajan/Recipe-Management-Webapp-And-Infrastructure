@@ -2,11 +2,12 @@
 	run git
 
 
-DB_USER ?= recp-dev
+DB_USER ?= rect-dev
 DB_PASSWORD ?= secretpassword
 
+
 db-shell:
-	mysql -u $DB_USER -p $DB_PASSWORD
+	mysql -u $(DB_USER) --password="$(DB_PASSWORD)"
 
 db-setup:
 	sudo ./deploy/desetup.sh
