@@ -6,13 +6,14 @@ from config.envvar import *
 
 # CONNECTION TO MARIADB
 
-mariadb_conn = mariadb.connect(user=config.db_config["DB_USER"], password= config.db_config["DB_PASSWORD"]) 
-database =config.db_config["DB_NAME"]
+def get_db():
+mariadb_connection = mariadb.connect(user=config.db_config["DB_USER"], password= config.db_config["DB_PASSWORD"], database =config.db_config["DB_NAME"])
+return mariadb_connection
 
-cur = mariadb_conn.cursor()
+#cur = mariadb_conn.cursor()
 
-mariadb_conn.commit()
-mariadb_conn.close()
+#mariadb_conn.commit()
+#mariadb_conn.close()
     
 
 
