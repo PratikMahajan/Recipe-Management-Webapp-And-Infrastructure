@@ -26,6 +26,28 @@ Run the following command to setup the Database
 make db-setup
 ```
 
+## Preparing
+
+### Initializing Environment Variables 
+Add environment variables in ENV.secret file with the format <br/>
+A ENV file is in folder, rename it to ENV.secret and add environment variables
+```shell script
+<KEY> <VALUE>
+# For Example
+KEY1 value_here
+```
+
+Run `setENV.sh` after setting environment variables to save it in `.bashrc` file
+
+### Initializing Database
+After setting up environment variables, Run 
+```shell script
+./dbinitsh # from deploy folder 
+# OR
+./deploy/dbinit.sh # from webapp folder
+```
+
+
 ## Run
 
 Run the Web-app by using 
