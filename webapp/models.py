@@ -12,10 +12,10 @@ secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x
 class User(Base):
     __tablename__ = 'user_info1'
     id = Column(String(128), primary_key=True)
-    first_name = Column(String(32), index=True)
-    last_name = Column(String(32), index=True)
+    first_name = Column(String(32))
+    last_name = Column(String(32))
     password = Column(String(128))
-    email_address = Column(String(128))
+    email_address = Column(String(128), index=True)
     account_created = Column(String(64))
     account_updated = Column(String(64))
 
