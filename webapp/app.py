@@ -1,9 +1,11 @@
-from flask import Flask, Response, request, jsonify
-import mysql.connector as mariadb
+from flask import Flask, Response, request
+import json
+#import mysql.connector as mariadb
 from datetime import datetime
 from config.loggingfilter import *
 from config.envvar import *
 
+app = Flask(__name__)
 
 # CONNECTION TO MARIADB
 
@@ -33,31 +35,30 @@ def health() -> Response:
 #===================================================================
 
 @app.route('/v1/user', methods=['GET','POST', 'PUT'])
-def v1/user():
+def user():
     if request.method == 'POST':
         #CREATE NEW USER
         try:
-        first_name = request.json['first_name']
-        last_name = request.json['last_name']
-        email = request.json['email']
-        password = request.json['password']
-        account_created = datetime.now()
-        account_updated = datetime.now()
-        cur = get_db().cursor()
-        checkUsername = cur.execute("Select email from user_info where email=? Limit 1", (email))
-        if checkUsername.fetchall():
-            response={}
-            response["error"] = "Username already exists !!!!!"
-            return Response(json.dumps(response), status=400, mimetype='application/json')
-
-
-        res = cur.execute("INSERT into user_info (first_name, last_name, email, password, account_created, account_updated) values(?,?,?,?,?,?,?);", (first_name, last_name, email, password, account_created, account_updated))
-        get_db().commit()
-        return Response(status=201)
-    except Exception as e:
-        get_db().rollback()
-        print(e)
-        return Response(status=400)
+            first_name=request.json['first_name']
+            last_name=request.json['last_name']
+            email=request.json['email']
+            password=request.json['password']
+            account_created=datetime.now()
+            account_updated=datetime.now()
+            cur=get_db().cursor()
+            checkUsername = cur.execute("Select email from user_info where email=? Limit 1", (email))
+            if checkUsername.fetchall():
+                response={}
+                response["error"] = "Username already exists !!!!!"
+                return Response(json.dumps(response), status=400, mimetype='application/json')
+            
+            res = cur.execute("INSERT into user_info (first_name, last_name, email, password, account_created, account_updated) values(?,?,?,?,?,?,?);", (first_name, last_name, email, password, account_created, account_updated))
+            get_db().commit()
+            return Response(status=201)
+        except Exception as e:
+            get_db().rollback()
+            print(e)
+            return Response(status=400)
 
     if request.method == 'GET':
         #GET USER HERE
@@ -103,7 +104,7 @@ def v1/user():
                     response = {}
                     response["error"] = "Incorrect Password !!!!!"
                     return Response(json.dumps(response), status=400, mimetype='application/json')
-            execpt Exception as e:
+            except Exception as e:
                 get_db().rollback()
                 print(e)
                 return Response(status=400)
