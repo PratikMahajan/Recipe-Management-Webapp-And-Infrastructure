@@ -24,7 +24,7 @@ class User(Base):
         self.password=bcrypt.hashpw(password.encode('utf-8'),salt)
 
     def verify_password(self,password):
-        return bcrypt.checkpw(password.encode('utf-8'),self.password)
+        return bcrypt.checkpw(password.encode('utf-8'),self.password.encode('utf-8'))
 
     def gen_auth_token(self,exp=600):
         s=Serializer(secret_key,expires_in=exp)
