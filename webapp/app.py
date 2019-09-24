@@ -55,6 +55,11 @@ def new_user():
     session.commit()
     return jsonify({ 'id':user.id,'first_name':user.first_name,'last_name':user.last_name,'email_address':user.email_address,'account_created': user.account_created,'account_updated':user.account_updated}), 201
 
+@app.route('/v1/user/self', methods = ['GET'])
+@auth.login_required
+def get_user():
+    return jsonify({'id':g.user.id,'first_name':g.user.first_name,'last_name':g.user.last_name,'email_address':g.user.email_address,'account_created': g.user.account_created,'account_updated':g.user.account_updated}), 200
+
 @app.route('/health', methods=['GET', 'POST'])
 @disable_logging
 def health_probe() -> Response:
