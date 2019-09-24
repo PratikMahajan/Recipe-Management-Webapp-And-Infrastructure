@@ -26,6 +26,21 @@ Run the following command to setup the Database
 make db-setup
 ```
 
+## Preparing
+
+### Initialising Environment Variables 
+Add environment variables in ENV file with the format 
+```shell script
+<KEY> <VALUE>
+# For Example
+KEY1 value_here
+```
+
+Run `setENV.sh` after setting environment variables to save it in `.bashrc` file
+
+### Initializing Database
+After setting up environment variables, Run 
+
 ## Run
 
 Run the Web-app by using 
