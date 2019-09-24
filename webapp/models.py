@@ -7,10 +7,10 @@ import random, string
 from itsdangerous import(TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 
 Base = declarative_base()
-secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
 
 class User(Base):
-    __tablename__ = 'user_info1'
+    __tablename__ = 'user_info'
     id = Column(String(128), primary_key=True)
     first_name = Column(String(32))
     last_name = Column(String(32))
@@ -20,17 +20,17 @@ class User(Base):
     account_updated = Column(String(64))
 
     def bcrypt_salt_hash(self,password):
-        salt=bcrypt.gensalt(round=16)
-        self.password=bcrypt.hashpw(password,salt)
+        salt=bcrypt.gensalt(rounds=16)
+        self.password=bcrypt.hashpw(password.encode('utf-8'),salt)
 
     def verify_password(self,password):
-        return bcrypt.checkpw(password,self.password)
+        return bcrypt.checkpw(password.encode('utf-8'),self.password)
 
-    def gen_auth_token(self,exp=500):
+    def gen_auth_token(self,exp=600):
         s=Serializer(secret_key,expires_in=exp)
         return s.dumps({'id':self.id})
 
-    @saticmethod
+    @staticmethod
     def verify_auth_token(token):
         s=Serializer(secret_key)
         try:
