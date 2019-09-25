@@ -9,6 +9,7 @@ from flask_httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
 
 from config.loggingfilter import *
+from config.envvar import *
 
 engine = create_engine('mysql+pymysql://user:user@localhost/user',echo=True)
 
@@ -17,6 +18,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 app = Flask(__name__)
+
 
 @auth.verify_password
 def verify_password(username_or_token, password):
@@ -83,10 +85,11 @@ def update_user():
 
 @app.route('/health', methods=['GET', 'POST'])
 @disable_logging
-def health_probe() -> Response:
+def health() -> Response:
     status = dict()
     status["ok"] = True
     return Response(json.dumps(status), status=200, mimetype='application/json')
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
