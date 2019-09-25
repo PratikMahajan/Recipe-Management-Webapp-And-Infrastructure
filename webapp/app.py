@@ -27,7 +27,9 @@ def get_db():
     return session
 
 def check_username(email):
-    return bool(re.search(r"^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$", email))
+    if re.search("^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$", email):
+        return True
+    return False
 
 def check_password(password):
     if re.search('^(?=\S{8,20}$)(?=.*?\d)(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[^A-Za-z\s0-9])', password):
@@ -49,7 +51,7 @@ def verify_password(username_or_token, password):
         g.user = user
         return True
     except Exception as e:
-        logger.debug("Exception in verify_password: "+e)
+        logger.debug("Exception in verify_password: "+str(e))
         return False
 
 
@@ -61,7 +63,7 @@ def get_auth_token():
         status = {'token': token.decode('ascii')}
         return Response(json.dumps(status), status=200, mimetype='application/json')
     except Exception as e:
-        logger.debug("Exception in get_auth_token: "+e)
+        logger.debug("Exception in get_auth_token: "+str(e))
         return Response(status=404, mimetype='application/json')
 
 
@@ -72,7 +74,7 @@ def new_user():
         username = request.json.get('email_address')
         password = request.json.get('password')
 
-        if not check_password(username):
+        if not check_username(username):
             status = {'ERROR': 'Invalid Email'}
             return Response(json.dumps(status), status=400, mimetype='application/json')
 
@@ -98,8 +100,9 @@ def new_user():
                         'account_updated': user.account_updated}), 201
     except Exception as e:
         get_db().rollback()
-        logger.debug("Exception in creating user /v1/user: " + e)
-        return Response(status=404, mimetype='application/json')
+        # status = {'ERROR': str(e)}
+        logger.debug("Exception in creating user /v1/user: " + str(e))
+        return Response(json.dumps(status), status=404, mimetype='application/json')
 
 
 @app.route('/v1/user/self', methods=['GET'])
@@ -110,7 +113,7 @@ def get_user():
                         'email_address': g.user.email_address, 'account_created': g.user.account_created,
                         'account_updated': g.user.account_updated}), 200
     except Exception as e:
-        logger.debug("Exception in getting user get_user() /v1/user/self/: " + e)
+        logger.debug("Exception in getting user get_user() /v1/user/self/: " + str(e))
         return Response(status=404, mimetype='application/json')
 
 
@@ -139,7 +142,7 @@ def update_user():
             return Response(status=204, mimetype='application/json')
     except Exception as e:
         get_db().rollback()
-        logger.debug("Exception in updating user update_user() /v1/user/self/: " + e)
+        logger.debug("Exception in updating user update_user() /v1/user/self/: " + str(e))
         return Response(status=404, mimetype='application/json')
 
 
