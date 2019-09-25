@@ -7,6 +7,7 @@ import uuid
 from datetime import datetime
 from flask_httpauth import HTTPBasicAuth
 from config.loggingfilter import *
+from config.logger import *
 from config.envvar import *
 import json
 import re
@@ -25,6 +26,8 @@ def get_db():
     session = DBSession()
     return session
 
+def check_username(email):
+    return bool(re.search(r"^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$", email))
 
 def check_password(password):
     if re.search('^(?=\S{8,20}$)(?=.*?\d)(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[^A-Za-z\s0-9])', password):
@@ -69,6 +72,10 @@ def new_user():
         username = request.json.get('email_address')
         password = request.json.get('password')
 
+        if not check_password(username):
+            status = {'ERROR': 'Invalid Email'}
+            return Response(json.dumps(status), status=400, mimetype='application/json')
+
         if not check_password(password):
             status = {'ERROR': 'Insecure Password'}
             return Response(json.dumps(status), status=400, mimetype='application/json')
@@ -112,6 +119,11 @@ def get_user():
 def update_user():
     try:
         cursor = get_db()
+
+        if not check_password(request.json.get('password')):
+            status = {'ERROR': 'Insecure Password'}
+            return Response(json.dumps(status), status=400, mimetype='application/json')
+
         if ((request.json.get('id') is not  None) or (request.json.get('email_address') is not None) or
                 (request.json.get('account_created') is not None) or (request.json.get('account_updated') is not None)):
             return Response(status=400, mimetype='application/json')
@@ -126,6 +138,7 @@ def update_user():
             cursor.commit()
             return Response(status=204, mimetype='application/json')
     except Exception as e:
+        get_db().rollback()
         logger.debug("Exception in updating user update_user() /v1/user/self/: " + e)
         return Response(status=404, mimetype='application/json')
 
