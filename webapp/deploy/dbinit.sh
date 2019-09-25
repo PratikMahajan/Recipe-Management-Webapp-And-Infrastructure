@@ -30,9 +30,9 @@ fi
 
 echo "Adding tables"
 mysql -u ${DB_USER} --password=${DB_PASSWORD} -e "USE ${DATABASE_NAME};
-        CREATE TABLE user_info (id bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, first_name varchar(128) NOT NULL,
-        last_name varchar(128), email varchar(128) NOT NULL, password varchar(256) NOT NULL,
-        account_created DATE NOT NULL, account_updated DATE NOT NULL, token varchar(256));"
+        CREATE TABLE user_info (id varchar(256) NOT NULL PRIMARY KEY, first_name varchar(128) NOT NULL,
+        last_name varchar(128), email_address varchar(128) NOT NULL, password varchar(256) NOT NULL,
+        account_created DATETIME NOT NULL, account_updated DATETIME NOT NULL);"
 if [ $? -ne 0 ]; then
     echo "unsuccessful"
     exit 1
