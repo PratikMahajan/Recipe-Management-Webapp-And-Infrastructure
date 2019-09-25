@@ -8,11 +8,12 @@ from datetime import datetime
 from flask_httpauth import HTTPBasicAuth
 from config.loggingfilter import *
 from config.envvar import *
+import json
 
 auth = HTTPBasicAuth()
 
 engine = create_engine('mysql+pymysql://'+db_config["DB_USER"]+':'+db_config["DB_PASSWORD"]+'@'+db_config["DB_HOST"]+'/'
-                       + db_config["DB_NAME"], echo=True)
+                       + db_config["DB_NAME"])
 
 app = Flask(__name__)
 
@@ -42,19 +43,20 @@ def verify_password(username_or_token, password):
 @auth.login_required
 def get_auth_token():
     token = g.user.generate_auth_token()
-    return jsonify({'token': token.decode('ascii')})
+    status = {'token': token.decode('ascii')}
+    return Response(json.dumps(status), status=200, mimetype='application/json')
 
 
 @app.route('/v1/user', methods=['POST'])
 def new_user():
-    cursor=get_db()
+    cursor = get_db()
     username = request.json.get('email_address')
     password = request.json.get('password')
     if username is None or password is None:
         status={'ERROR': 'Missing Arguments'}
         return Response(json.dumps(status), status=400, mimetype='application/json')
         
-    if session.query(User).filter_by(email_address = username).first() is not None:
+    if cursor.query(User).filter_by(email_address=username).first() is not None:
         status = {'ERROR': 'User Error'}
         return Response(json.dumps(status), status=400, mimetype='application/json')
 
@@ -79,20 +81,20 @@ def get_user():
 @app.route('/v1/user/self', methods=['PUT'])
 @auth.login_required
 def update_user():
-    cursor=get_db()
+    cursor = get_db()
     if ((request.json.get('id') is not  None) or (request.json.get('email_address') is not None) or
             (request.json.get('account_created') is not None) or (request.json.get('account_updated') is not None)):
         return Response(status=400, mimetype='application/json')
     else:
         if request.json.get('first_name') is not None:
-            g.user.first_name=request.json.get('first_name')
+            g.user.first_name = request.json.get('first_name')
         if request.json.get('last_name') is not None:
-            g.user.last_name=request.json.get('last_name')
+            g.user.last_name = request.json.get('last_name')
         if request.json.get('password') is not None:
             g.user.bcrypt_salt_hash(request.json.get('password'))
         g.user.account_updated = str(datetime.now())
         cursor.commit()
-        return jsonify({}), 204
+        return Response(status=204, mimetype='application/json')
 
 
 @app.route('/health', methods=['GET', 'POST'])

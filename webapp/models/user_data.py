@@ -7,13 +7,14 @@ import random
 import string
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from config.envvar import *
+import json
 
 
 Base = declarative_base()
 secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
 
 class User(Base):
-    __tablename__ = db_config["DB_NAME"]
+    __tablename__ = "user_info"
     id = Column(String(128), primary_key=True)
     first_name = Column(String(32))
     last_name = Column(String(32))
@@ -46,7 +47,7 @@ class User(Base):
         return user_id
 
 
-engine = create_engine('mysql+pymysql://'+db_config["DB_USER"]+':'+db_config["DB_PASSWORD"]+'@'+db_config["DB_IP"]+'/'
-                       + db_config["DB_NAME"], echo=True)
+engine = create_engine('mysql+pymysql://'+db_config["DB_USER"]+':'+db_config["DB_PASSWORD"]+'@'+db_config["DB_HOST"]+'/'
+                       + db_config["DB_NAME"])
 
 Base.metadata.create_all(engine)
