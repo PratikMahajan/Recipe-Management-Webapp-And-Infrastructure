@@ -123,9 +123,6 @@ def update_user():
     try:
         cursor = get_db()
 
-        if not check_password(request.json.get('password')):
-            status = {'ERROR': 'Insecure Password'}
-            return Response(json.dumps(status), status=400, mimetype='application/json')
 
         if ((request.json.get('id') is not  None) or (request.json.get('email_address') is not None) or
                 (request.json.get('account_created') is not None) or (request.json.get('account_updated') is not None)):
@@ -136,6 +133,9 @@ def update_user():
             if request.json.get('last_name') is not None:
                 g.user.last_name = request.json.get('last_name')
             if request.json.get('password') is not None:
+                if not check_password(request.json.get('password')):
+                    status = {'ERROR': 'Insecure Password'}
+                    return Response(json.dumps(status), status=400, mimetype='application/json')
                 g.user.bcrypt_salt_hash(request.json.get('password'))
             g.user.account_updated = str(datetime.now())
             cursor.commit()
