@@ -7,6 +7,7 @@ import uuid
 from datetime import datetime
 from flask_httpauth import HTTPBasicAuth
 from config.loggingfilter import *
+from config.logger import *
 from config.envvar import *
 import json
 import re
