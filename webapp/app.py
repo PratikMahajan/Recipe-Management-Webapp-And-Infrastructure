@@ -51,7 +51,7 @@ def new_user():
     username = request.json.get('email_address')
     password = request.json.get('password')
     if username is None or password is None:
-        status={'ERROR':'Missing Arguments'}
+        status={'ERROR': 'Missing Arguments'}
         return Response(json.dumps(status), status=400, mimetype='application/json')
         
     if session.query(User).filter_by(email_address = username).first() is not None:
@@ -80,8 +80,8 @@ def get_user():
 @auth.login_required
 def update_user():
     cursor=get_db()
-    if ((request.json.get('id') is not  None) or  (request.json.get('email_address') is not None) or (request.json.get('account_created') is not None)
-            or (request.json.get('account_updated') is not None)):
+    if ((request.json.get('id') is not  None) or (request.json.get('email_address') is not None) or
+            (request.json.get('account_created') is not None) or (request.json.get('account_updated') is not None)):
         return Response(status=400, mimetype='application/json')
     else:
         if request.json.get('first_name') is not None:
