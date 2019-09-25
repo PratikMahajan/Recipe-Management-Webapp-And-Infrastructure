@@ -47,6 +47,12 @@ After setting up environment variables, Run
 ./deploy/dbinit.sh # from webapp folder
 ```
 
+## Testing
+To run tests, run
+```shell script
+nosetests test/app_test.py
+```
+
 
 ## Run
 
