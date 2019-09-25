@@ -7,6 +7,7 @@ import uuid
 from datetime import datetime
 from flask_httpauth import HTTPBasicAuth
 from config.loggingfilter import *
+from config.envvar import *
 
 auth = HTTPBasicAuth()
 
@@ -19,6 +20,7 @@ def get_db():
     return session
 
 app = Flask(__name__)
+
 
 @auth.verify_password
 def verify_password(username_or_token, password):
@@ -87,10 +89,11 @@ def update_user():
 
 @app.route('/health', methods=['GET', 'POST'])
 @disable_logging
-def health_probe() -> Response:
+def health() -> Response:
     status = dict()
     status["ok"] = True
     return Response(json.dumps(status), status=200, mimetype='application/json')
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
