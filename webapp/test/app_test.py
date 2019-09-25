@@ -37,3 +37,20 @@ class TestLogin(unittest.TestCase):
             '/v1/user/self', headers={'Authorization': 'Basic ' + self.invalid_password})
         self.assertEqual(response.status, '401 UNAUTHORIZED')
 
+
+    def test_user_can_update_with_invalid_field(self):
+        datajson=json.dumps({"id":"","first_name": "Aakash","last_name": "Jagtap","password": "p@ssword11"})
+        response = self.app.put('/v1/user/self',
+                                 data=datajson,
+                                 content_type='application/json',
+                                 headers={'Authorization': 'Basic ' + self.valid_credentials})
+        self.assertEqual(response.status, '400 BAD REQUEST')
+
+    def test_user_can_update_with_valid_field(self):
+        datajson=json.dumps({"first_name": "Aakash","last_name": "Jagtap","password": "p@ssword11"})
+        response = self.app.put('/v1/user/self',
+                                 data=datajson,
+                                 content_type='application/json',
+                                 headers={'Authorization': 'Basic ' + self.valid_credentials})
+        self.assertEqual(response.status, '204 NO CONTENT')
+
