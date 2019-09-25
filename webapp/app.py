@@ -6,9 +6,9 @@ from sqlalchemy import create_engine
 import uuid
 from datetime import datetime
 from flask_httpauth import HTTPBasicAuth
-auth = HTTPBasicAuth()
-
 from config.loggingfilter import *
+
+auth = HTTPBasicAuth()
 
 engine = create_engine('mysql+pymysql://user:user@localhost/user',echo=True)
 
@@ -49,26 +49,26 @@ def new_user():
         print("existing user")
         abort(400)
 
-    user = User(id=str(uuid.uuid4()),first_name =request.json.get('first_name'),last_name=request.json.get('last_name'),email_address = username,account_created=str(datetime.now()),account_updated=str(datetime.now()))
+    user = User(id=str(uuid.uuid4()),first_name =request.json.get('first_name'),last_name=request.json.get('last_name'),
+                email_address = username,account_created=str(datetime.now()),account_updated=str(datetime.now()))
     user.bcrypt_salt_hash(password)
     session.add(user)
     session.commit()
-    return jsonify({ 'id':user.id,'first_name':user.first_name,'last_name':user.last_name,'email_address':user.email_address,'account_created': user.account_created,'account_updated':user.account_updated}), 201
+    return jsonify({ 'id':user.id,'first_name':user.first_name,'last_name':user.last_name,'email_address':user.email_address,
+                     'account_created': user.account_created,'account_updated':user.account_updated}), 201
 
 @app.route('/v1/user/self', methods = ['GET'])
 @auth.login_required
 def get_user():
-    return jsonify({'id':g.user.id,'first_name':g.user.first_name,'last_name':g.user.last_name,'email_address':g.user.email_address,'account_created': g.user.account_created,'account_updated':g.user.account_updated}), 200
+    return jsonify({'id':g.user.id,'first_name':g.user.first_name,'last_name':g.user.last_name,'email_address':g.user.email_address,
+                    'account_created': g.user.account_created,'account_updated':g.user.account_updated}), 200
 
 
 @app.route('/v1/user/self', methods = ['PUT'])
 @auth.login_required
 def update_user():
-    #if ((request.json.get('id') is not None) && (request.json.get('id')!=g.user.id)):
-    #    abort(400)
-    #if ((request.json.get('email_address') is not None) && (request.json.get('email_address')!=g.user.email_address)):
-    #    abort(400)
-    if ((request.json.get('id') is not  None) or  (request.json.get('email_address') is not None) or (request.json.get('account_created') is not None) or (request.json.get('account_updated') is not None)):
+    if ((request.json.get('id') is not  None) or  (request.json.get('email_address') is not None) or (request.json.get('account_created') is not None)
+            or (request.json.get('account_updated') is not None)):
         abort(400)
     else:
         if request.json.get('first_name') is not None:
