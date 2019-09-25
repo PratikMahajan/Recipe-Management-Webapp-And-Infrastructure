@@ -9,6 +9,7 @@ from flask_httpauth import HTTPBasicAuth
 from config.loggingfilter import *
 from config.envvar import *
 import json
+import re
 
 auth = HTTPBasicAuth()
 
@@ -25,6 +26,12 @@ def get_db():
     return session
 
 
+def check_password(password):
+    if re.search('^(?=\S{8,20}$)(?=.*?\d)(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[^A-Za-z\s0-9])', password):
+        return True
+    return False
+
+
 @auth.verify_password
 def verify_password(username_or_token, password):
     # Try to see if it's a token first
@@ -39,7 +46,7 @@ def verify_password(username_or_token, password):
         g.user = user
         return True
     except Exception as e:
-        logger.debug("Exception in verift_password: "+e)
+        logger.debug("Exception in verify_password: "+e)
         return False
 
 
@@ -61,6 +68,11 @@ def new_user():
         cursor = get_db()
         username = request.json.get('email_address')
         password = request.json.get('password')
+
+        if not check_password(password):
+            status = {'ERROR': 'Insecure Password'}
+            return Response(json.dumps(status), status=400, mimetype='application/json')
+
         if username is None or password is None:
             status={'ERROR': 'Missing Arguments'}
             return Response(json.dumps(status), status=400, mimetype='application/json')
