@@ -26,6 +26,8 @@ def get_db():
     session = DBSession()
     return session
 
+def check_username(email):
+    return bool(re.search(r"^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$", email))
 
 def check_password(password):
     if re.search('^(?=\S{8,20}$)(?=.*?\d)(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[^A-Za-z\s0-9])', password):
@@ -69,6 +71,10 @@ def new_user():
         cursor = get_db()
         username = request.json.get('email_address')
         password = request.json.get('password')
+
+        if not check_password(username):
+            status = {'ERROR': 'Invalid Email'}
+            return Response(json.dumps(status), status=400, mimetype='application/json')
 
         if not check_password(password):
             status = {'ERROR': 'Insecure Password'}
