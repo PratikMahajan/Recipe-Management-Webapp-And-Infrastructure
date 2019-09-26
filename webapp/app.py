@@ -23,8 +23,10 @@ app = Flask(__name__)
 def get_db():
     Base.metadata.bind = engine
     DBSession = sessionmaker(bind=engine)
-    session = DBSession()
-    return session
+    return DBSession()
+
+
+cursor = get_db()
 
 def check_username(email):
     if re.search("^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$", email):
@@ -41,11 +43,12 @@ def check_password(password):
 def verify_password(username_or_token, password):
     # Try to see if it's a token first
     try:
+        # cursor = get_db()
         user_id = User.verify_auth_token(username_or_token)
         if user_id:
-            user = get_db().query(User).filter_by(id=user_id).one()
+            user = cursor.query(User).filter_by(id=user_id).one()
         else:
-            user = get_db().query(User).filter_by(email_address=username_or_token).first()
+            user = cursor.query(User).filter_by(email_address=username_or_token).first()
             if not user or not user.verify_password(password):
                 return False
         g.user = user
@@ -70,7 +73,7 @@ def get_auth_token():
 @app.route('/v1/user', methods=['POST'])
 def new_user():
     try:
-        cursor = get_db()
+        # cursor = get_db()
         username = request.json.get('email_address')
         password = request.json.get('password')
 
@@ -99,7 +102,7 @@ def new_user():
                         'email_address': user.email_address, 'account_created': user.account_created,
                         'account_updated': user.account_updated}), 201
     except Exception as e:
-        get_db().rollback()
+        cursor.rollback()
         # status = {'ERROR': str(e)}
         logger.debug("Exception in creating user /v1/user: " + str(e))
         return Response(json.dumps(status), status=404, mimetype='application/json')
@@ -121,7 +124,7 @@ def get_user():
 @auth.login_required
 def update_user():
     try:
-        cursor = get_db()
+        # cursor = get_db()
 
 
         if ((request.json.get('id') is not  None) or (request.json.get('email_address') is not None) or
@@ -141,7 +144,7 @@ def update_user():
             cursor.commit()
             return Response(status=204, mimetype='application/json')
     except Exception as e:
-        get_db().rollback()
+        cursor.rollback()
         logger.debug("Exception in updating user update_user() /v1/user/self/: " + str(e))
         return Response(status=404, mimetype='application/json')
 
