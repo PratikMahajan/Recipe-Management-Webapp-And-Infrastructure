@@ -1,21 +1,7 @@
-# CSYE 6225 - Fall 2019
+# Recipe Management Application 
 
-## Team Information
+## Setup
 
-| Name | NEU ID | Email Address |
-| --- | --- | --- |
-| Pratik Mahajan | 001886367 | pratik@mahajan.xyz |
-| Akash Jagtap | 001832752 | jagtap.ak@northeastern.edu |
-| Ashita Jagasia | 001821956 | jagasia.a@husky.neu.edu |
-
-## Technology Stack
-
-1. Python Flask
-2. Postman
-3. Nosetest for testing
-4. Mariadb (MySQL)
-
-## Build Instructions
 ### Python Environment
 Create a virtual environment using either of the following methods:
 - `venv` built into the IDE
@@ -39,7 +25,8 @@ Run the following command to setup the Database
 ```shell script
 make db-setup
 ```
-## Deploy Instructions
+
+## Preparing
 
 ### Initializing Environment Variables 
 Add environment variables in ENV.secret file with the format <br/>
@@ -60,13 +47,15 @@ After setting up environment variables, Run
 ./deploy/dbinit.sh # from webapp folder
 ```
 
-## Running Tests
+## Testing
 To run tests, run
 ```shell script
 nosetests test/app_test.py
 ```
 
-## Running Application
+
+## Run
+
 Run the Web-app by using 
 ```shell script
 make run
@@ -76,7 +65,3 @@ Enter the Database shell using
 ```shell script
 make db-shell
 ```
-
-## CI/CD
-
-
