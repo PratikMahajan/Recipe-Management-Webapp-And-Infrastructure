@@ -8,9 +8,9 @@ class TestLogin(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         self.app = app.test_client()
-        self.user_name = "test15@mytest.com"
+        self.user_name = "test2n1@mytest.com"
         self.password = "thi@isMyPass123"
-        self.valid_credentials = base64.b64encode(b'test14@mytest.com:thi@isMyPass123').decode('utf-8')
+        self.valid_credentials = base64.b64encode(b'test14@mytest.com:P@ssword11').decode('utf-8')
         self.invalid_password = base64.b64encode(b'test@mytest.com:ssword11').decode('utf-8')
         self.invalid_username = base64.b64encode(b'karan@example.com:password11').decode('utf-8')
 
@@ -47,7 +47,7 @@ class TestLogin(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_user_can_update_with_valid_field(self):
-        datajson=json.dumps({"first_name": "Aakash","last_name": "Jagtap","password": "P@ssword11"})
+        datajson=json.dumps({"first_name": "Aakawwwwwwsh","last_name": "Jagtap","password": "P@ssword11"})
         response = self.app.put('/v1/user/self',
                                  data=datajson,
                                  content_type='application/json',
