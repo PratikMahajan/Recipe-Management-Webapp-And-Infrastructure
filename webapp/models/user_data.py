@@ -32,7 +32,7 @@ class User(Base):
         return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
 
     def gen_auth_token(self, exp=600):
-        s=Serializer(secret_key, expires_in=exp)
+        s=Serializer(secret_key)
         return s.dumps({'id': self.id})
 
     @staticmethod
