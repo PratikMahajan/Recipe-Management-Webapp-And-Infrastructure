@@ -8,6 +8,7 @@ import string
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from config.envvar import *
 import json
+from config.logger import *
 
 
 Base = declarative_base()
@@ -40,8 +41,10 @@ class User(Base):
         try:
             data=s.loads(token)
         except SignatureExpired:
+            logger.debug("Exception in verify_auth_token: Signature Expired")
             return None
         except BadSignature:
+            logger.debug("Exception in verify_auth_token: Bad Signature")
             return None
         user_id = data['id']
         return user_id
