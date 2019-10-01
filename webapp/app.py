@@ -145,6 +145,17 @@ def update_user():
         return Response(status=404, mimetype='application/json')
 
 
+@app.route('/v1/recipe/', methods=['POST'])
+@auth.login_required
+def add_recipe():
+    try:
+        print ("add recipe code here")
+
+    except Exception as e:
+        logger.debug("Exception while adding recipe /v1/recipe/: " + str(e))
+        return Response(status=404, mimetype='application/json')
+
+
 @app.route('/v1/recipe/{id}', methods=['GET'])
 def get_recipe():
     try:
