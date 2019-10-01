@@ -12,7 +12,7 @@ from config.logger import *
 
 
 Base = declarative_base()
-secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+
 
 class Recipe(Base):
     __tablename__ = "recipe"
@@ -26,6 +26,14 @@ class Recipe(Base):
     author_id = Column(String(128))
     created_ts = Column(String(64))
     updated_ts = Column(String(64))
+
+
+class Ingredients(Base):
+    __tablename__ = "ingredients"
+    id = Column(INTEGER(zerofill=True),
+                Sequence('article_aid_seq', start=1001, increment=1), primary_key=True)
+    recipe_id = Column(String(128))
+    ingredient = Column(Integer)
 
 
 class Steps(Base):
@@ -47,7 +55,6 @@ class NutritionInformation(Base):
     sodium_in_mg = Column(Integer)
     carbohydrates_in_grams = Column(Float(10, 2))
     protein_in_grams = Column(Float(10, 2))
-
 
 
 engine = create_engine('mysql+pymysql://'+db_config["DB_USER"]+':'+db_config["DB_PASSWORD"]+'@'+db_config["DB_HOST"]+'/'
