@@ -15,7 +15,7 @@ import re
 auth = HTTPBasicAuth()
 
 engine = create_engine('mysql+pymysql://'+db_config["DB_USER"]+':'+db_config["DB_PASSWORD"]+'@'+db_config["DB_HOST"]+'/'
-                       + db_config["DB_NAME"])
+                       + db_config["DB_NAME"], pool_size=20)
 
 app = Flask(__name__)
 
