@@ -19,7 +19,7 @@ class User(Base):
     first_name = Column(String(32))
     last_name = Column(String(32))
     password = Column(String(128))
-    email_address = Column(String(128), index=True)
+    email_address = Column(String(128), index=True , unique=True)
     account_created = Column(String(64))
     account_updated = Column(String(64))
 

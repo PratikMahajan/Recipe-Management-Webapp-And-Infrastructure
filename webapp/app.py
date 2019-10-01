@@ -103,7 +103,7 @@ def new_user():
                         'account_updated': user.account_updated}), 201
     except Exception as e:
         cursor.rollback()
-        # status = {'ERROR': str(e)}
+        status = {'ERROR': str(e)}
         logger.debug("Exception in creating user /v1/user: " + str(e))
         return Response(json.dumps(status), status=404, mimetype='application/json')
 
