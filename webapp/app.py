@@ -149,6 +149,20 @@ def update_user():
         return Response(status=404, mimetype='application/json')
 
 
+@app.route('/v1/recipe/{id}', methods=['GET'])
+def get_recipe():
+    try:
+        print ("get recipe code here")
+
+    except Exception as e:
+        logger.debug("Exception while getting recipe /v1/recipe/{id}: " + str(e))
+        return Response(status=404, mimetype='application/json')
+
+
+
+
+
+
 @app.route('/health', methods=['GET', 'POST'])
 @disable_logging
 def health_probe() -> Response:
