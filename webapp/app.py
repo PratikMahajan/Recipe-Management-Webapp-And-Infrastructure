@@ -166,6 +166,15 @@ def delete_recipe():
         return Response(status=404, mimetype='application/json')
 
 
+@app.route('/v1/recipe/{id}', methods=['PUT'])
+@auth.login_required
+def update_recipe():
+    try:
+        print ("update recipe code here")
+
+    except Exception as e:
+        logger.debug("Exception while updating recipe /v1/recipe/{id}: " + str(e))
+        return Response(status=404, mimetype='application/json')
 
 
 @app.route('/health', methods=['GET', 'POST'])
