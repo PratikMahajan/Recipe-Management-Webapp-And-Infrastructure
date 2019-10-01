@@ -28,10 +28,12 @@ def get_db():
 
 cursor = get_db()
 
+
 def check_username(email):
     if re.search("^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$", email):
         return True
     return False
+
 
 def check_password(password):
     if re.search('^(?=\S{8,20}$)(?=.*?\d)(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[^A-Za-z\s0-9])', password):
@@ -41,9 +43,7 @@ def check_password(password):
 
 @auth.verify_password
 def verify_password(username_or_token, password):
-    # Try to see if it's a token first
     try:
-        # cursor = get_db()
         user_id = User.verify_auth_token(username_or_token)
         if user_id:
             user = cursor.query(User).filter_by(id=user_id).one()
@@ -73,7 +73,6 @@ def get_auth_token():
 @app.route('/v1/user', methods=['POST'])
 def new_user():
     try:
-        # cursor = get_db()
         username = request.json.get('email_address')
         password = request.json.get('password')
 
@@ -124,9 +123,6 @@ def get_user():
 @auth.login_required
 def update_user():
     try:
-        # cursor = get_db()
-
-
         if ((request.json.get('id') is not  None) or (request.json.get('email_address') is not None) or
                 (request.json.get('account_created') is not None) or (request.json.get('account_updated') is not None)):
             return Response(status=400, mimetype='application/json')
@@ -159,6 +155,15 @@ def get_recipe():
         return Response(status=404, mimetype='application/json')
 
 
+@app.route('/v1/recipe/{id}', methods=['DELETE'])
+@auth.login_required
+def delete_recipe():
+    try:
+        print ("delete recipe code here")
+
+    except Exception as e:
+        logger.debug("Exception while deleting recipe /v1/recipe/{id}: " + str(e))
+        return Response(status=404, mimetype='application/json')
 
 
 
