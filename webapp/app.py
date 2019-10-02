@@ -164,7 +164,7 @@ def add_recipe():
 @app.route('/v1/recipe/<id>', methods=['GET'])
 def get_recipe():
     try:
-        jsonify(get_recipy(cursor,id))
+        return jsonify(get_recipy(cursor,id))
 
     except Exception as e:
         logger.debug("Exception while getting recipe /v1/recipe/<id>: " + str(e))
