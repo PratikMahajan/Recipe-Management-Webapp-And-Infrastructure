@@ -154,29 +154,7 @@ def update_user():
 @auth.login_required
 def add_recipe():
     try:
-        cook_time_in_min=request.json.get('cook_time_in_min')
-        prep_time_in_min=request.json.get('prep_time_in_min')
-
-        if cook_time_in_min % 5 != 0:
-            status = {'ERROR': 'Invalid Cook Time'}
-            return Response(json.dumps(status), status=400, mimetype='application/json')
-
-        if prep_time_in_min % 5 !=0:
-            status = {'ERROR': 'Invalid Prep Time'}
-            return Response(json.dumps(status), status=400, mimetype='application/json')
-
-
-        #print ("add recipe code here")
-        recipe = insert_recipe(id=str(uuid.uuid4), title=request.json.get('title'), cuisine= request.json.get('cuisine'), servings= request.json.get('servings'), 
-                               created_ts= str(datetime.now()), updated_ts= str(datetime.now()), nutrition= request.json.get('nutrition_information'), recipe_id= id, 
-                               ingredientset= request.json.get('ingredients'), steps= request.json.get('steps'))
-        cursor.add(recipe)
-        cursor.add(nutrition_information)
-        cursor.commit()
-        return jsonify({'id': recipe.id, 'cook_time_in_min' : recipe.cook_time_in_min, 'prep_time_in_min': recipe.prep_time_in_min, 'title': recipe.title, 'cuisine': recipe.cuisine,                        'servings': recipe.servings, 'created_ts': recipe.created_ts, 'updated_ts': recipe.updated_ts, 'nutrition': recipe.nutrition, 'recipe_id': recipe.id,
-                        'ingredients': recipe.ingredients, 'steps': recipe.steps}), 201
         return insert_recipe(cursor,request.json,g.user.id)
-
 
     except Exception as e:
         cursor.rollback()
@@ -202,7 +180,7 @@ def delete_recipe(id):
         return delete_recipy(cursor,id)
 
     except Exception as e:
-        logger.debug("Exception while deleting recipe /v1/recipe/{id}: " + str(e))
+        logger.debug("Exception while deleting recipe /v1/recipe/<id>: " + str(e))
         return Response(status=404, mimetype='application/json')
 
 
@@ -210,10 +188,11 @@ def delete_recipe(id):
 @auth.login_required
 def update_recipe(id):
     try:
-        print ("update recipe code here")
+        return update_recipe(cusor, id)
+        #print ("update recipe code here")
 
     except Exception as e:
-        logger.debug("Exception while updating recipe /v1/recipe/{id}: " + str(e))
+        logger.debug("Exception while updating recipe /v1/recipe/<id>: " + str(e))
         return Response(status=404, mimetype='application/json')
 
 

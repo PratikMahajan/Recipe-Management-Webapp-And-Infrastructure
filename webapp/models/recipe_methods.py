@@ -163,3 +163,77 @@ def delete_recipy(cursor, recipe_id):
     except Exception as e:
         logger.debug("Exception in deleting recipe: " + str(e))
         raise Exception(str(e))
+
+
+def update_recipe(cursor, recipe_id):
+    try:
+        recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
+        if not recipe:
+            return Response(status=404, mimetype='application/json')
+        cook_time_in_min = recipeJson['cook_time_in_min']
+        prep_time_in_min = recipeJson['prep_time_in_min']
+
+        if cook_time_in_min % 5 != 0:
+            raise ValueError('Incorrect Cook Time')
+        if prep_time_in_min % 5 != 0:
+            raise ValueError('Incorrect Prep Time')
+
+        total_time_in_min = cook_time_in_min + prep_time_in_min
+        title = recipeJson["title"]
+        cuisine = recipeJson["cuisine"]
+        servings = recipeJson["servings"]
+        author_id = authorID
+        created_ts = str(datetime.now())
+        updated_ts = str(datetime.now())
+
+        if servings > 5 or servings < 1:
+            raise ValueError('Incorrect Servings')
+
+        recipe = Recipe(id = id , cook_time_in_min=cook_time_in_min, prep_time_in_min=prep_time_in_min,
+                        total_time_in_min=total_time_in_min, title=title, cuisine=cuisine, servings=servings,
+                        author_id=author_id, created_ts=created_ts, updated_ts=updated_ts)
+
+        nutrition = recipeJson["nutrition_information"]
+        recipe_id = id
+        calories = float(nutrition["calories"])
+        cholesterol_in_mg = nutrition["cholesterol_in_mg"]
+        sodium_in_mg = nutrition["sodium_in_mg"]
+        carbohydrates_in_grams = float(nutrition["carbohydrates_in_grams"])
+        protein_in_grams = float(nutrition["protein_in_grams"])
+
+        nutritioninformation = NutritionInformation(recipe_id=recipe_id, calories=calories,
+                                                    cholesterol_in_mg=cholesterol_in_mg, sodium_in_mg=sodium_in_mg,
+                                                    carbohydrates_in_grams=carbohydrates_in_grams,
+                                                    protein_in_grams=protein_in_grams)
+
+        ingredientset = set(recipeJson["ingredients"])
+        for ingred in ingredientset:
+            newIngred = Ingredients(recipe_id=recipe_id, ingredient=ingred)
+            cursor.add(newIngred)
+
+        steps = recipeJson["steps"]
+        for step in steps:
+            position = step['position']
+            items = step['items']
+            if position < 1:
+                raise ValueError('Error in Positions')
+            insertStep = Steps(recipe_id=recipe_id, position=position, items=items)
+            cursor.add(insertStep)
+
+
+        cursor.add(recipe)
+        cursor.add(nutritioninformation)
+        cursor.commit()
+        recipeJson["id"]=id
+        recipeJson["created_ts"]=created_ts
+        recipeJson["updated_ts"]=updated_ts
+        recipeJson["total_time_in_min"]=total_time_in_min
+        recipeJson["author_id"]=authorID
+        return jsonify(recipeJson), 200
+    
+    except Exception as e:
+        logger.debug("Exception in updating recipe: " + str(e))
+        raise Exception(str(e))
+
+
+
