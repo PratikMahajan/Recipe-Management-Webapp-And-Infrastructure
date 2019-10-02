@@ -154,7 +154,7 @@ def update_user():
 @auth.login_required
 def add_recipe():
     try:
-        print ("add recipe code here")
+        return insert_recipe(cursor,request.json,g.user.id)
 
     except Exception as e:
         logger.debug("Exception while adding recipe /v1/recipe/: " + str(e))
