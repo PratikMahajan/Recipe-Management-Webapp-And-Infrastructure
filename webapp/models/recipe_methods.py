@@ -1,4 +1,5 @@
 import uuid
+from flask import Response, jsonify
 from datetime import datetime
 from config.loggingfilter import *
 from config.logger import *
@@ -77,7 +78,7 @@ def insert_recipe(cursor, recipeJson, authorID):
         recipeJson["updated_ts"]=updated_ts
         recipeJson["total_time_in_min"]=total_time_in_min
         recipeJson["author_id"]=authorID
-        return recipeJson 
+        return jsonify(recipeJson), 201 
 
     except Exception as e:
         cursor.rollback()
@@ -91,7 +92,7 @@ def get_recipy(cursor, recipe_id):
 
         recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
-            return False
+            return Response(status=404, mimetype='application/json')
 
         responseDict["id"] = recipe.id
         responseDict["cook_time_in_min"] = recipe.cook_time_in_min
@@ -121,7 +122,7 @@ def get_recipy(cursor, recipe_id):
 
         responseDict["ingredients"] = ingridList
 
-        steps = cursor.query(Steps).filter_by(id=recipe_id).all()
+        steps = cursor.query(Steps).filter_by(recipe_id=recipe_id).all()
         stepList= []
         for step in steps:
             stepdict = {}
@@ -131,7 +132,34 @@ def get_recipy(cursor, recipe_id):
 
         responseDict["steps"] = stepList
 
-        return responseDict
+        return jsonify(responseDict), 200
     except Exception as e:
         logger.debug("Exception in getting recipe: " + str(e))
+        raise Exception(str(e))
+
+
+def delete_recipy(cursor, recipe_id):
+    try:
+        recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
+        if not recipe:
+            return Response(status=404, mimetype='application/json')
+        cursor.delete(recipe)
+
+        nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()
+        cursor.delete(nutritioninformation)
+
+        ingredients = cursor.query(Ingredients).filter_by(recipe_id=recipe_id).all()
+        for ingrid in ingredients:
+            cursor.delete(ingrid)
+
+        steps = cursor.query(Steps).filter_by(recipe_id=recipe_id).all()
+        for step in steps:
+            cursor.delete(step)
+        
+        cursor.commit()
+        return Response(status=204, mimetype='application/json')
+
+
+    except Exception as e:
+        logger.debug("Exception in deleting recipe: " + str(e))
         raise Exception(str(e))
