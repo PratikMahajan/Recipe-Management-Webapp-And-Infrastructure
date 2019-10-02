@@ -121,17 +121,17 @@ def get_recipe(cursor, recipe_id):
 
         responseDict["ingredients"] = ingridList
 
-        steps = cursor.query(Steps).filter_by(id=recipe_id)
+        steps = cursor.query(Steps).filter_by(id=recipe_id).all()
         stepList= []
         for step in steps:
             stepdict = {}
-            stepdict["position"]= int(step[2])
-            stepdict["items"]= str(step[3])
+            stepdict["position"]= int(step.position)
+            stepdict["items"]= str(step.items)
             stepList.append(stepdict)
 
         responseDict["steps"] = stepList
 
-        return json.dumps(responseDict)
+        return responseDict
     except Exception as e:
         logger.debug("Exception in getting recipe: " + str(e))
         raise Exception(str(e))
