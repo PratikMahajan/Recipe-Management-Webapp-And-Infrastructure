@@ -85,7 +85,7 @@ def insert_recipe(cursor, recipeJson, authorID):
         raise Exception(str(e))
 
 
-def get_recipe(cursor, recipe_id):
+def get_recipy(cursor, recipe_id):
     try:
         responseDict = {}
 
