@@ -31,7 +31,7 @@ class User(Base):
     def verify_password(self, password):
         return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
 
-    def gen_auth_token(self, exp=600):
+    def gen_auth_token(self):
         s=Serializer(secret_key)
         return s.dumps({'id': self.id})
 
