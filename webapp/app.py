@@ -162,7 +162,7 @@ def add_recipe():
 
 
 @app.route('/v1/recipe/<id>', methods=['GET'])
-def get_recipe():
+def get_recipe(id):
     try:
         return jsonify(get_recipy(cursor,id))
 
