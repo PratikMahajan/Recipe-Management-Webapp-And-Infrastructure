@@ -8,7 +8,7 @@ Base = declarative_base()
 class NutritionInformation(Base):
     __tablename__ = "nutritioninformation"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    recipe_id = Column(String(128))
+    recipe_id = Column(String(128),index=True)
     calories = Column(Integer)
     cholesterol_in_mg = Column(Float(10, 2))
     sodium_in_mg = Column(Integer)
