@@ -1,20 +1,13 @@
-from config.loggingfilter import *
-from config.logger import *
-from config.envvar import *
-from flask import Flask,Response, jsonify, request, abort,g
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy import create_engine
 import uuid
+from flask import Response, jsonify
 from datetime import datetime
-from flask_httpauth import HTTPBasicAuth
 from config.loggingfilter import *
 from config.logger import *
-from config.envvar import *
 import json
-import re
 from models.recipe import *
-
+from models.ingredients import *
+from models.nutritioninformation import *
+from models.steps import *
 
 def round_to_5(number):
     try:
@@ -62,8 +55,7 @@ def insert_recipe(cursor, recipeJson, authorID):
                                                     carbohydrates_in_grams=carbohydrates_in_grams,
                                                     protein_in_grams=protein_in_grams)
 
-        ingredientset = set()
-        ingredientset.add(recipeJson["ingredients"])
+        ingredientset = set(recipeJson["ingredients"])
         for ingred in ingredientset:
             newIngred = Ingredients(recipe_id=recipe_id, ingredient=ingred)
             cursor.add(newIngred)
@@ -81,8 +73,12 @@ def insert_recipe(cursor, recipeJson, authorID):
         cursor.add(recipe)
         cursor.add(nutritioninformation)
         cursor.commit()
-
-        return id
+        recipeJson["id"]=id
+        recipeJson["created_ts"]=created_ts
+        recipeJson["updated_ts"]=updated_ts
+        recipeJson["total_time_in_min"]=total_time_in_min
+        recipeJson["author_id"]=authorID
+        return jsonify(recipeJson), 201 
 
     except Exception as e:
         cursor.rollback()
@@ -90,13 +86,13 @@ def insert_recipe(cursor, recipeJson, authorID):
         raise Exception(str(e))
 
 
-def get_recipe(cursor, recipe_id):
+def get_recipy(cursor, recipe_id):
     try:
         responseDict = {}
 
         recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
-            return False
+            return Response(status=404, mimetype='application/json')
 
         responseDict["id"] = recipe.id
         responseDict["cook_time_in_min"] = recipe.cook_time_in_min
@@ -109,34 +105,61 @@ def get_recipe(cursor, recipe_id):
         responseDict["created_ts"] = recipe.created_ts
         responseDict["updated_ts"] = recipe.updated_ts
 
-        nutritioninformation = cursor.query(NutritionInformation).filter_by(id=recipe_id).first()
+        nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()
         nutriDict = {}
         nutriDict["calories"] = nutritioninformation.calories
-        nutriDict["cholesterol_in_mg"] = nutritioninformation.cholesterol_in_mg
-        nutriDict["sodium_in_mg"] = nutritioninformation.sodium_in_mg
-        nutriDict["carbohydrates_in_grams"] = nutritioninformation.carbohydrates_in_grams
-        nutriDict["protein_in_grams"] = nutritioninformation.protein_in_grams
+        nutriDict["cholesterol_in_mg"] = str(nutritioninformation.cholesterol_in_mg)
+        nutriDict["sodium_in_mg"] = int(nutritioninformation.sodium_in_mg)
+        nutriDict["carbohydrates_in_grams"] = str(nutritioninformation.carbohydrates_in_grams)
+        nutriDict["protein_in_grams"] = str(nutritioninformation.protein_in_grams)
 
         responseDict["nutrition_information"] = nutriDict
 
-        ingredients = cursor.query(Ingredients).filter_by(id=recipe_id)
+        ingredients = cursor.query(Ingredients).filter_by(recipe_id=recipe_id).all()
         ingridList = []
         for ingrid in ingredients:
-            ingridList.append(str(ingrid[2]))
+            ingridList.append(ingrid.ingredient)
 
         responseDict["ingredients"] = ingridList
 
-        steps = cursor.query(Steps).filter_by(id=recipe_id)
+        steps = cursor.query(Steps).filter_by(recipe_id=recipe_id).all()
         stepList= []
         for step in steps:
             stepdict = {}
-            stepdict["position"]= int(step[2])
-            stepdict["items"]= str(step[3])
+            stepdict["position"]= int(step.position)
+            stepdict["items"]= str(step.items)
             stepList.append(stepdict)
 
         responseDict["steps"] = stepList
 
-        return json.dumps(responseDict)
+        return jsonify(responseDict), 200
     except Exception as e:
         logger.debug("Exception in getting recipe: " + str(e))
+        raise Exception(str(e))
+
+
+def delete_recipy(cursor, recipe_id):
+    try:
+        recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
+        if not recipe:
+            return Response(status=404, mimetype='application/json')
+        cursor.delete(recipe)
+
+        nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()
+        cursor.delete(nutritioninformation)
+
+        ingredients = cursor.query(Ingredients).filter_by(recipe_id=recipe_id).all()
+        for ingrid in ingredients:
+            cursor.delete(ingrid)
+
+        steps = cursor.query(Steps).filter_by(recipe_id=recipe_id).all()
+        for step in steps:
+            cursor.delete(step)
+        
+        cursor.commit()
+        return Response(status=204, mimetype='application/json')
+
+
+    except Exception as e:
+        logger.debug("Exception in deleting recipe: " + str(e))
         raise Exception(str(e))
