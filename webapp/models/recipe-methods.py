@@ -88,3 +88,55 @@ def insert_recipe(cursor, recipeJson, authorID):
         cursor.rollback()
         logger.debug("Exception in creating recipe: "+str(e))
         raise Exception(str(e))
+
+
+def get_recipe(cursor, recipe_id):
+    try:
+        responseDict = {}
+
+        recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
+        if not recipe:
+            return False
+
+        responseDict["id"] = recipe.id
+        responseDict["cook_time_in_min"] = recipe.cook_time_in_min
+        responseDict["prep_time_in_min"] = recipe.prep_time_in_min
+        responseDict["total_time_in_min"] = recipe.total_time_in_min
+        responseDict["title"] = recipe.title
+        responseDict["cuisine"] = recipe.cuisine
+        responseDict["servings"] = recipe.servings
+        responseDict["author_id"] = recipe.author_id
+        responseDict["created_ts"] = recipe.created_ts
+        responseDict["updated_ts"] = recipe.updated_ts
+
+        nutritioninformation = cursor.query(NutritionInformation).filter_by(id=recipe_id).first()
+        nutriDict = {}
+        nutriDict["calories"] = nutritioninformation.calories
+        nutriDict["cholesterol_in_mg"] = nutritioninformation.cholesterol_in_mg
+        nutriDict["sodium_in_mg"] = nutritioninformation.sodium_in_mg
+        nutriDict["carbohydrates_in_grams"] = nutritioninformation.carbohydrates_in_grams
+        nutriDict["protein_in_grams"] = nutritioninformation.protein_in_grams
+
+        responseDict["nutrition_information"] = nutriDict
+
+        ingredients = cursor.query(Ingredients).filter_by(id=recipe_id)
+        ingridList = []
+        for ingrid in ingredients:
+            ingridList.append(str(ingrid[2]))
+
+        responseDict["ingredients"] = ingridList
+
+        steps = cursor.query(Steps).filter_by(id=recipe_id)
+        stepList= []
+        for step in steps:
+            stepdict = {}
+            stepdict["position"]= int(step[2])
+            stepdict["items"]= str(step[3])
+            stepList.append(stepdict)
+
+        responseDict["steps"] = stepList
+
+        return json.dumps(responseDict)
+    except Exception as e:
+        logger.debug("Exception in getting recipe: " + str(e))
+        raise Exception(str(e))
