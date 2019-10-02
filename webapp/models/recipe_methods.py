@@ -72,8 +72,12 @@ def insert_recipe(cursor, recipeJson, authorID):
         cursor.add(recipe)
         cursor.add(nutritioninformation)
         cursor.commit()
-
-        return id
+        recipeJson["id"]=id
+        recipeJson["created_ts"]=created_ts
+        recipeJson["updated_ts"]=updated_ts
+        recipeJson["total_time_in_min"]=total_time_in_min
+        recipeJson["author_id"]=authorID
+        return recipeJson 
 
     except Exception as e:
         cursor.rollback()
