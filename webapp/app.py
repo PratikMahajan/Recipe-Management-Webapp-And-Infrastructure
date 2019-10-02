@@ -1,5 +1,8 @@
 from models.user_data import Base, User
 from models.recipe import *
+from models.ingredients import *
+from models.nutritioninformation import *
+from models.steps import *
 from flask import Flask,Response, jsonify, request, abort,g
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
