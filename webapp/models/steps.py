@@ -8,7 +8,7 @@ Base = declarative_base()
 class Steps(Base):
     __tablename__ = "steps"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    recipe_id = Column(String(128))
+    recipe_id = Column(String(128),index=True)
     position = Column(Integer)
     items = Column(String(256))
 
