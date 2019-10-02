@@ -30,14 +30,14 @@ class Recipe(Base):
 
 class Ingredients(Base):
     __tablename__ = "ingredients"
-    id = Column(Integer, primary_key=True, autoincrement=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     recipe_id = Column(String(128))
     ingredient = Column(Integer)
 
 
 class Steps(Base):
     __tablename__ = "steps"
-    id = Column(Integer, primary_key=True, autoincrement=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     recipe_id = Column(String(128))
     position = Column(Integer)
     items = Column(String(256))
@@ -45,7 +45,7 @@ class Steps(Base):
 
 class NutritionInformation(Base):
     __tablename__ = "nutritioninformation"
-    id = Column(Integer, primary_key=True, autoincrement=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     recipe_id = Column(String(128))
     calories = Column(Integer)
     cholesterol_in_mg = Column(Float(10, 2))
