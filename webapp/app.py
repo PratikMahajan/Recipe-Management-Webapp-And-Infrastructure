@@ -150,9 +150,31 @@ def update_user():
 @auth.login_required
 def add_recipe():
     try:
-        print ("add recipe code here")
+        cook_time_in_min=request.json.get('cook_time_in_min')
+        prep_time_in_min=request.json.get('prep_time_in_min')
+
+        if cook_time_in_min % 5 != 0:
+            status = {'ERROR': 'Invalid Cook Time'}
+            return Response(json.dumps(status), status=400, mimetype='application/json')
+
+        if prep_time_in_min % 5 !=0:
+            status = {'ERROR': 'Invalid Prep Time'}
+            return Response(json.dumps(status), status=400, mimetype='application/json')
+
+
+        #print ("add recipe code here")
+        recipe = insert_recipe(id=str(uuid.uuid4), title=request.json.get('title'), cuisine= request.json.get('cuisine'), servings= request.json.get('servings'), 
+                               created_ts= str(datetime.now()), updated_ts= str(datetime.now()), nutrition= request.json.get('nutrition_information'), recipe_id= id, 
+                               ingredientset= request.json.get('ingredients'), steps= request.json.get('steps'))
+        cursor.add(recipe)
+        cursor.add(nutrition_information)
+        cursor.commit()
+        return jsonify({'id': recipe.id, 'cook_time_in_min' : recipe.cook_time_in_min, 'prep_time_in_min': recipe.prep_time_in_min, 'title': recipe.title, 'cuisine': recipe.cuisine,                        'servings': recipe.servings, 'created_ts': recipe.created_ts, 'updated_ts': recipe.updated_ts, 'nutrition': recipe.nutrition, 'recipe_id': recipe.id,
+                        'ingredients': recipe.ingredients, 'steps': recipe.steps}), 201
 
     except Exception as e:
+        cursor.rollback()
+        status = {'ERROR': str(e)}
         logger.debug("Exception while adding recipe /v1/recipe/: " + str(e))
         return Response(status=404, mimetype='application/json')
 
