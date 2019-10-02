@@ -37,7 +37,7 @@ def insert_recipe(cursor, recipeJson, authorID):
         if servings > 5 or servings < 1:
             raise ValueError('Incorrect Servings')
 
-        recipe = Recipe(id =str(id) , cook_time_in_min=cook_time_in_min, prep_time_in_min=prep_time_in_min,
+        recipe = Recipe(id = id , cook_time_in_min=cook_time_in_min, prep_time_in_min=prep_time_in_min,
                         total_time_in_min=total_time_in_min, title=title, cuisine=cuisine, servings=servings,
                         author_id=author_id, created_ts=created_ts, updated_ts=updated_ts)
 
