@@ -136,7 +136,7 @@ def get_recipy(cursor, recipe_id):
 
         responseDict["steps"] = stepList
 
-        return jsonify(responseDict), 200
+        return responseDict
     except Exception as e:
         logger.debug("Exception in getting recipe: " + str(e))
         raise Exception(str(e))

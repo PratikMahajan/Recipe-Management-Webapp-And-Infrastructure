@@ -164,7 +164,8 @@ def add_recipe():
 @app.route('/v1/recipe/<id>', methods=['GET'])
 def get_recipe(id):
     try:
-        return get_recipy(cursor,id)
+        recJson = get_recipy(cursor,id)
+        Response(json.dumps(recJson), status=200, mimetype='application/json')
 
     except Exception as e:
         status = {'ERROR': str(e)}
