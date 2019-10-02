@@ -114,10 +114,10 @@ def get_recipe(cursor, recipe_id):
 
         responseDict["nutrition_information"] = nutriDict
 
-        ingredients = cursor.query(Ingredients).filter_by(id=recipe_id)
+        ingredients = cursor.query(Ingredients).filter_by(recipe_id=recipe_id).all()
         ingridList = []
         for ingrid in ingredients:
-            ingridList.append(str(ingrid[2]))
+            ingridList.append(ingrid.ingredient)
 
         responseDict["ingredients"] = ingridList
 
