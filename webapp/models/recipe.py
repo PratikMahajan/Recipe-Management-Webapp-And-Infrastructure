@@ -1,4 +1,4 @@
-from sqlalchemy import Column,Integer,String
+from sqlalchemy import Column,Integer,String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
@@ -30,16 +30,14 @@ class Recipe(Base):
 
 class Ingredients(Base):
     __tablename__ = "ingredients"
-    id = Column(INTEGER(zerofill=True),
-                Sequence('article_aid_seq', start=1001, increment=1), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     recipe_id = Column(String(128))
     ingredient = Column(Integer)
 
 
 class Steps(Base):
     __tablename__ = "steps"
-    id = Column(INTEGER(zerofill=True),
-                Sequence('article_aid_seq', start=1001, increment=1), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     recipe_id = Column(String(128))
     position = Column(Integer)
     items = Column(String(256))
@@ -47,8 +45,7 @@ class Steps(Base):
 
 class NutritionInformation(Base):
     __tablename__ = "nutritioninformation"
-    id = Column(INTEGER(zerofill=True),
-                Sequence('article_aid_seq', start=1001, increment=1), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     recipe_id = Column(String(128))
     calories = Column(Integer)
     cholesterol_in_mg = Column(Float(10, 2))
