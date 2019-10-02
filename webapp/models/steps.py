@@ -3,6 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from config.envvar import *
 
+Base = declarative_base()
+
 class Steps(Base):
     __tablename__ = "steps"
     id = Column(Integer, primary_key=True, autoincrement=True)
