@@ -9,7 +9,7 @@ class Ingredients(Base):
     __tablename__ = "ingredients"
     id = Column(Integer, primary_key=True, autoincrement=True)
     recipe_id = Column(String(128))
-    ingredient = Column(Integer)
+    ingredient = Column(String(4000))
 
 engine = create_engine('mysql+pymysql://'+db_config["DB_USER"]+':'+db_config["DB_PASSWORD"]+'@'+db_config["DB_HOST"]+'/'
                        + db_config["DB_NAME"])
