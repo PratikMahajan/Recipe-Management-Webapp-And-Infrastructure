@@ -1,5 +1,9 @@
 from models.user_data import Base, User
 from models.recipe import *
+from models.ingredients import *
+from models.nutritioninformation import *
+from models.steps import *
+from models.recipe_methods import *
 from flask import Flask,Response, jsonify, request, abort,g
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -150,37 +154,37 @@ def update_user():
 @auth.login_required
 def add_recipe():
     try:
-        print ("add recipe code here")
+        return insert_recipe(cursor,request.json,g.user.id)
 
     except Exception as e:
         logger.debug("Exception while adding recipe /v1/recipe/: " + str(e))
         return Response(status=404, mimetype='application/json')
 
 
-@app.route('/v1/recipe/{id}', methods=['GET'])
-def get_recipe():
+@app.route('/v1/recipe/<id>', methods=['GET'])
+def get_recipe(id):
     try:
-        print ("get recipe code here")
+        return get_recipy(cursor,id)
 
     except Exception as e:
-        logger.debug("Exception while getting recipe /v1/recipe/{id}: " + str(e))
+        logger.debug("Exception while getting recipe /v1/recipe/<id>: " + str(e))
         return Response(status=404, mimetype='application/json')
 
 
-@app.route('/v1/recipe/{id}', methods=['DELETE'])
+@app.route('/v1/recipe/<id>', methods=['DELETE'])
 @auth.login_required
-def delete_recipe():
+def delete_recipe(id):
     try:
-        print ("delete recipe code here")
+        return delete_recipy(cursor,id)
 
     except Exception as e:
         logger.debug("Exception while deleting recipe /v1/recipe/{id}: " + str(e))
         return Response(status=404, mimetype='application/json')
 
 
-@app.route('/v1/recipe/{id}', methods=['PUT'])
+@app.route('/v1/recipe/<id>', methods=['PUT'])
 @auth.login_required
-def update_recipe():
+def update_recipe(id):
     try:
         print ("update recipe code here")
 
