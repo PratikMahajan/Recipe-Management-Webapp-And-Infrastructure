@@ -16,9 +16,11 @@ def round_to_5(number):
         raise ValueError('Incorrect Time Format')
 
 
-def insert_recipe(cursor, recipeJson, authorID):
+def insert_recipe(cursor, recipeJson, authorID, recipeID = None, createdTime = None):
     try:
         id = str(uuid.uuid4())
+        if recipeID:
+            id = recipeID
         cook_time_in_min = recipeJson['cook_time_in_min']
         prep_time_in_min = recipeJson['prep_time_in_min']
 
@@ -32,7 +34,9 @@ def insert_recipe(cursor, recipeJson, authorID):
         cuisine = recipeJson["cuisine"]
         servings = recipeJson["servings"]
         author_id = authorID
-        created_ts = str(datetime.now())
+        created_ts = createdTime
+        if not createdTime:
+            created_ts = str(datetime.now())
         updated_ts = str(datetime.now())
 
         if servings > 5 or servings < 1:
