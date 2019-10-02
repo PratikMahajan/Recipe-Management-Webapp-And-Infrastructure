@@ -14,7 +14,9 @@ from config.envvar import *
 import json
 import re
 from models.recipe import *
-
+from models.ingredients import *
+from models.nutritioninformation import *
+from models.steps import *
 
 def round_to_5(number):
     try:
