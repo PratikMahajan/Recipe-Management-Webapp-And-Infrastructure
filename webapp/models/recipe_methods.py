@@ -104,13 +104,13 @@ def get_recipy(cursor, recipe_id):
         responseDict["created_ts"] = recipe.created_ts
         responseDict["updated_ts"] = recipe.updated_ts
 
-        nutritioninformation = cursor.query(NutritionInformation).filter_by(id=recipe_id).first()
+        nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()
         nutriDict = {}
         nutriDict["calories"] = nutritioninformation.calories
-        nutriDict["cholesterol_in_mg"] = nutritioninformation.cholesterol_in_mg
-        nutriDict["sodium_in_mg"] = nutritioninformation.sodium_in_mg
-        nutriDict["carbohydrates_in_grams"] = nutritioninformation.carbohydrates_in_grams
-        nutriDict["protein_in_grams"] = nutritioninformation.protein_in_grams
+        nutriDict["cholesterol_in_mg"] = str(nutritioninformation.cholesterol_in_mg)
+        nutriDict["sodium_in_mg"] = int(nutritioninformation.sodium_in_mg)
+        nutriDict["carbohydrates_in_grams"] = str(nutritioninformation.carbohydrates_in_grams)
+        nutriDict["protein_in_grams"] = str(nutritioninformation.protein_in_grams)
 
         responseDict["nutrition_information"] = nutriDict
 
