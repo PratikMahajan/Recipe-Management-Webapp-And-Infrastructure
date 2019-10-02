@@ -92,7 +92,7 @@ def get_recipy(cursor, recipe_id):
 
         recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
-            return Response(status=404, mimetype='application/json')
+            raise ValueError('No Such Recipe')
 
         responseDict["id"] = recipe.id
         responseDict["cook_time_in_min"] = recipe.cook_time_in_min
@@ -142,7 +142,7 @@ def delete_recipy(cursor, recipe_id):
     try:
         recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
-            return Response(status=404, mimetype='application/json')
+            raise ValueError('No Such Recipe')
         cursor.delete(recipe)
 
         nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()

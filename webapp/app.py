@@ -109,7 +109,7 @@ def new_user():
         cursor.rollback()
         status = {'ERROR': str(e)}
         logger.debug("Exception in creating user /v1/user: " + str(e))
-        return Response(json.dumps(status), status=404, mimetype='application/json')
+        return Response(json.dumps(status), status=400, mimetype='application/json')
 
 
 @app.route('/v1/user/self', methods=['GET'])
@@ -121,7 +121,7 @@ def get_user():
                         'account_updated': g.user.account_updated}), 200
     except Exception as e:
         logger.debug("Exception in getting user get_user() /v1/user/self/: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(status=400, mimetype='application/json')
 
 
 @app.route('/v1/user/self', methods=['PUT'])
@@ -147,7 +147,7 @@ def update_user():
     except Exception as e:
         cursor.rollback()
         logger.debug("Exception in updating user update_user() /v1/user/self/: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(status=400, mimetype='application/json')
 
 
 @app.route('/v1/recipe/', methods=['POST'])
@@ -158,7 +158,7 @@ def add_recipe():
 
     except Exception as e:
         logger.debug("Exception while adding recipe /v1/recipe/: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(status=400, mimetype='application/json')
 
 
 @app.route('/v1/recipe/<id>', methods=['GET'])
@@ -167,8 +167,9 @@ def get_recipe(id):
         return get_recipy(cursor,id)
 
     except Exception as e:
+        status = {'ERROR': str(e)}
         logger.debug("Exception while getting recipe /v1/recipe/<id>: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(json.dumps(status), status=400, mimetype='application/json')
 
 
 @app.route('/v1/recipe/<id>', methods=['DELETE'])
@@ -178,8 +179,9 @@ def delete_recipe(id):
         return delete_recipy(cursor,id)
 
     except Exception as e:
+        status = {'ERROR': str(e)}
         logger.debug("Exception while deleting recipe /v1/recipe/{id}: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(json.dumps(status), status=400, mimetype='application/json')
 
 
 @app.route('/v1/recipe/<id>', methods=['PUT'])
@@ -189,8 +191,9 @@ def update_recipe(id):
         print ("update recipe code here")
 
     except Exception as e:
+        status = {'ERROR': str(e)}
         logger.debug("Exception while updating recipe /v1/recipe/{id}: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(json.dumps(status), status=400, mimetype='application/json')
 
 
 @app.route('/health', methods=['GET', 'POST'])
