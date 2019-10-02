@@ -164,27 +164,27 @@ def add_recipe():
 @app.route('/v1/recipe/<id>', methods=['GET'])
 def get_recipe(id):
     try:
-        return jsonify(get_recipy(cursor,id))
+        return get_recipy(cursor,id)
 
     except Exception as e:
         logger.debug("Exception while getting recipe /v1/recipe/<id>: " + str(e))
         return Response(status=404, mimetype='application/json')
 
 
-@app.route('/v1/recipe/{id}', methods=['DELETE'])
+@app.route('/v1/recipe/<id>', methods=['DELETE'])
 @auth.login_required
-def delete_recipe():
+def delete_recipe(id):
     try:
-        print ("delete recipe code here")
+        return delete_recipy(cursor,id)
 
     except Exception as e:
         logger.debug("Exception while deleting recipe /v1/recipe/{id}: " + str(e))
         return Response(status=404, mimetype='application/json')
 
 
-@app.route('/v1/recipe/{id}', methods=['PUT'])
+@app.route('/v1/recipe/<id>', methods=['PUT'])
 @auth.login_required
-def update_recipe():
+def update_recipe(id):
     try:
         print ("update recipe code here")
 
