@@ -25,7 +25,7 @@ class User(Base):
     account_updated = Column(String(64))
 
     def bcrypt_salt_hash(self, password):
-        salt = bcrypt.gensalt(rounds=16)
+        salt = bcrypt.gensalt()
         self.password = bcrypt.hashpw(password.encode('utf-8'), salt)
 
     def verify_password(self, password):
