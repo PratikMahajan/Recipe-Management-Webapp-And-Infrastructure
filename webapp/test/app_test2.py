@@ -10,7 +10,7 @@ class TestLogin(unittest.TestCase):
         self.app = app.test_client()
         self.user_name = "test2n1@mytest.com"
         self.password = "thi@isMyPass123"
-        self.valid_credentials = base64.b64encode(b'test14@mytest.com:P@ssword11').decode('utf-8')
+        self.valid_credentials = base64.b64encode(b'pratik@mahajan.xyz:123@Abcd').decode('utf-8')
         self.invalid_password = base64.b64encode(b'test@mytest.com:ssword11').decode('utf-8')
         self.invalid_username = base64.b64encode(b'karan@example.com:password11').decode('utf-8')
 
@@ -50,7 +50,7 @@ class TestLogin(unittest.TestCase):
     def test_user_recipe_get(self):
         response = self.app.get(
             '/v1/recipe/f5e02bd4-55da-4243-b7fb-980b230a1138')
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 404)
 
     def test_user_recipe_delete(self):
         response = self.app.delete(
