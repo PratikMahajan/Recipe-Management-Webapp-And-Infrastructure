@@ -8,6 +8,7 @@ import string
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from config.envvar import *
 import json
+from config.logger import *
 
 
 Base = declarative_base()
@@ -19,19 +20,19 @@ class User(Base):
     first_name = Column(String(32))
     last_name = Column(String(32))
     password = Column(String(128))
-    email_address = Column(String(128), index=True)
+    email_address = Column(String(128), index=True , unique=True)
     account_created = Column(String(64))
     account_updated = Column(String(64))
 
     def bcrypt_salt_hash(self, password):
-        salt = bcrypt.gensalt(rounds=16)
+        salt = bcrypt.gensalt()
         self.password = bcrypt.hashpw(password.encode('utf-8'), salt)
 
     def verify_password(self, password):
         return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
 
-    def gen_auth_token(self, exp=600):
-        s=Serializer(secret_key, expires_in=exp)
+    def gen_auth_token(self):
+        s=Serializer(secret_key)
         return s.dumps({'id': self.id})
 
     @staticmethod
@@ -40,8 +41,10 @@ class User(Base):
         try:
             data=s.loads(token)
         except SignatureExpired:
+            logger.debug("Exception in verify_auth_token: Signature Expired")
             return None
         except BadSignature:
+            #logger.debug("Exception in verify_auth_token: Bad Signature")
             return None
         user_id = data['id']
         return user_id
