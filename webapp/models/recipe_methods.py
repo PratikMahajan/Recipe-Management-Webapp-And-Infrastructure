@@ -112,10 +112,10 @@ def get_recipy(cursor, recipe_id):
         nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()
         nutriDict = {}
         nutriDict["calories"] = nutritioninformation.calories
-        nutriDict["cholesterol_in_mg"] = str(nutritioninformation.cholesterol_in_mg)
+        nutriDict["cholesterol_in_mg"] = float(nutritioninformation.cholesterol_in_mg)
         nutriDict["sodium_in_mg"] = int(nutritioninformation.sodium_in_mg)
-        nutriDict["carbohydrates_in_grams"] = str(nutritioninformation.carbohydrates_in_grams)
-        nutriDict["protein_in_grams"] = str(nutritioninformation.protein_in_grams)
+        nutriDict["carbohydrates_in_grams"] = float(nutritioninformation.carbohydrates_in_grams)
+        nutriDict["protein_in_grams"] = float(nutritioninformation.protein_in_grams)
 
         responseDict["nutrition_information"] = nutriDict
 
@@ -142,9 +142,9 @@ def get_recipy(cursor, recipe_id):
         raise Exception(str(e))
 
 
-def delete_recipy(cursor, recipe_id):
+def delete_recipy(cursor, recipe_id, authId):
     try:
-        recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
+        recipe = cursor.query(Recipe).filter_by(id=recipe_id,author_id=authId).first()
         if not recipe:
             raise ValueError('No Such Recipe')
         cursor.delete(recipe)
