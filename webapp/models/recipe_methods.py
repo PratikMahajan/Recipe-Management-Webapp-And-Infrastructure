@@ -112,10 +112,10 @@ def get_recipy(cursor, recipe_id):
         nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()
         nutriDict = {}
         nutriDict["calories"] = nutritioninformation.calories
-        nutriDict["cholesterol_in_mg"] = str(nutritioninformation.cholesterol_in_mg)
+        nutriDict["cholesterol_in_mg"] = float(nutritioninformation.cholesterol_in_mg)
         nutriDict["sodium_in_mg"] = int(nutritioninformation.sodium_in_mg)
-        nutriDict["carbohydrates_in_grams"] = str(nutritioninformation.carbohydrates_in_grams)
-        nutriDict["protein_in_grams"] = str(nutritioninformation.protein_in_grams)
+        nutriDict["carbohydrates_in_grams"] = float(nutritioninformation.carbohydrates_in_grams)
+        nutriDict["protein_in_grams"] = float(nutritioninformation.protein_in_grams)
 
         responseDict["nutrition_information"] = nutriDict
 
