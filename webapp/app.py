@@ -154,7 +154,9 @@ def update_user():
 @auth.login_required
 def add_recipe():
     try:
-        return insert_recipe(cursor,request.json,g.user.id)
+        retJson = insert_recipe(cursor,request.json,g.user.id)
+        cursor.commit()
+        Response(json.dumps(retJson), status=201, mimetype='application/json')
 
     except Exception as e:
         logger.debug("Exception while adding recipe /v1/recipe/: " + str(e))
@@ -177,12 +179,15 @@ def get_recipe(id):
 @auth.login_required
 def delete_recipe(id):
     try:
-        return delete_recipy(cursor,id)
+        if delete_recipy(cursor, id):
+            cursor.commit()
+            return Response(status=204, mimetype='application/json')
+        return Response(status=403, mimetype='application/json')
 
     except Exception as e:
         status = {'ERROR': str(e)}
         logger.debug("Exception while deleting recipe /v1/recipe/{id}: " + str(e))
-        return Response(json.dumps(status), status=400, mimetype='application/json')
+        return Response(json.dumps(status), status=403, mimetype='application/json')
 
 
 @app.route('/v1/recipe/<id>', methods=['PUT'])
@@ -194,8 +199,10 @@ def update_recipe(id):
         recpID = recJson["id"]
         createdTime = recJson["created_ts"]
 
-        delete_recipy(cursor, id)
-        insert_recipe(cursor,request.json,g.user.id, recpID, createdTime)
+        if delete_recipy(cursor, id):
+            retJson = insert_recipe(cursor,request.json,g.user.id, recpID, createdTime)
+            cursor.commit()
+            Response(json.dumps(retJson), status=201, mimetype='application/json')
 
     except Exception as e:
         status = {'ERROR': str(e)}

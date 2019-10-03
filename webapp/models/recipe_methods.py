@@ -76,13 +76,13 @@ def insert_recipe(cursor, recipeJson, authorID, recipeID = None, createdTime = N
 
         cursor.add(recipe)
         cursor.add(nutritioninformation)
-        cursor.commit()
+
         recipeJson["id"]=id
         recipeJson["created_ts"]=created_ts
         recipeJson["updated_ts"]=updated_ts
         recipeJson["total_time_in_min"]=total_time_in_min
         recipeJson["author_id"]=authorID
-        return jsonify(recipeJson), 201 
+        return recipeJson
 
     except Exception as e:
         cursor.rollback()
@@ -160,8 +160,7 @@ def delete_recipy(cursor, recipe_id):
         for step in steps:
             cursor.delete(step)
         
-        cursor.commit()
-        return Response(status=204, mimetype='application/json')
+
 
 
     except Exception as e:
