@@ -189,7 +189,13 @@ def delete_recipe(id):
 @auth.login_required
 def update_recipe(id):
     try:
-        print ("update recipe code here")
+        recJson = get_recipy(cursor, id)
+
+        recpID = recJson["id"]
+        createdTime = recJson["created_ts"]
+
+        delete_recipy(cursor, id)
+        insert_recipe(cursor,request.json,g.user.id, recpID, createdTime)
 
     except Exception as e:
         status = {'ERROR': str(e)}
