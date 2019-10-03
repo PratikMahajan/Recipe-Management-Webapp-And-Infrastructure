@@ -109,7 +109,7 @@ def new_user():
         cursor.rollback()
         status = {'ERROR': str(e)}
         logger.debug("Exception in creating user /v1/user: " + str(e))
-        return Response(json.dumps(status), status=404, mimetype='application/json')
+        return Response(json.dumps(status), status=400, mimetype='application/json')
 
 
 @app.route('/v1/user/self', methods=['GET'])
@@ -121,7 +121,7 @@ def get_user():
                         'account_updated': g.user.account_updated}), 200
     except Exception as e:
         logger.debug("Exception in getting user get_user() /v1/user/self/: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(status=400, mimetype='application/json')
 
 
 @app.route('/v1/user/self', methods=['PUT'])
@@ -147,50 +147,68 @@ def update_user():
     except Exception as e:
         cursor.rollback()
         logger.debug("Exception in updating user update_user() /v1/user/self/: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(status=400, mimetype='application/json')
 
 
 @app.route('/v1/recipe/', methods=['POST'])
 @auth.login_required
 def add_recipe():
     try:
-        return insert_recipe(cursor,request.json,g.user.id)
+        retJson = insert_recipe(cursor,request.json,g.user.id)
+        cursor.commit()
+        return Response(json.dumps(retJson), status=201, mimetype='application/json')
 
     except Exception as e:
         logger.debug("Exception while adding recipe /v1/recipe/: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(status=400, mimetype='application/json')
 
 
 @app.route('/v1/recipe/<id>', methods=['GET'])
 def get_recipe(id):
     try:
-        return get_recipy(cursor,id)
+        recJson = get_recipy(cursor,id)
+        return Response(json.dumps(recJson), status=200, mimetype='application/json')
 
     except Exception as e:
+        status = {'ERROR': str(e)}
         logger.debug("Exception while getting recipe /v1/recipe/<id>: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(json.dumps(status), status=400, mimetype='application/json')
 
 
 @app.route('/v1/recipe/<id>', methods=['DELETE'])
 @auth.login_required
 def delete_recipe(id):
     try:
-        return delete_recipy(cursor,id)
+        if delete_recipy(cursor, id):
+            cursor.commit()
+            return Response(status=204, mimetype='application/json')
+        return Response(status=403, mimetype='application/json')
 
     except Exception as e:
+        status = {'ERROR': str(e)}
         logger.debug("Exception while deleting recipe /v1/recipe/{id}: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(json.dumps(status), status=403, mimetype='application/json')
 
 
 @app.route('/v1/recipe/<id>', methods=['PUT'])
 @auth.login_required
 def update_recipe(id):
     try:
-        print ("update recipe code here")
+        recJson = get_recipy(cursor, id)
+
+        recpID = recJson["id"]
+        createdTime = recJson["created_ts"]
+
+        if delete_recipy(cursor, id):
+            retJson = insert_recipe(cursor,request.json,g.user.id, recpID, createdTime)
+            cursor.commit()
+            return Response(json.dumps(retJson), status=201, mimetype='application/json')
+        return Response(status=403, mimetype='application/json')
 
     except Exception as e:
+        status = {'ERROR': str(e)}
         logger.debug("Exception while updating recipe /v1/recipe/{id}: " + str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(json.dumps(status), status=400, mimetype='application/json')
 
 
 @app.route('/health', methods=['GET', 'POST'])

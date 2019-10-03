@@ -16,9 +16,11 @@ def round_to_5(number):
         raise ValueError('Incorrect Time Format')
 
 
-def insert_recipe(cursor, recipeJson, authorID):
+def insert_recipe(cursor, recipeJson, authorID, recipeID = None, createdTime = None):
     try:
         id = str(uuid.uuid4())
+        if recipeID:
+            id = recipeID
         cook_time_in_min = recipeJson['cook_time_in_min']
         prep_time_in_min = recipeJson['prep_time_in_min']
 
@@ -32,7 +34,9 @@ def insert_recipe(cursor, recipeJson, authorID):
         cuisine = recipeJson["cuisine"]
         servings = recipeJson["servings"]
         author_id = authorID
-        created_ts = str(datetime.now())
+        created_ts = createdTime
+        if not createdTime:
+            created_ts = str(datetime.now())
         updated_ts = str(datetime.now())
 
         if servings > 5 or servings < 1:
@@ -72,13 +76,13 @@ def insert_recipe(cursor, recipeJson, authorID):
 
         cursor.add(recipe)
         cursor.add(nutritioninformation)
-        cursor.commit()
+
         recipeJson["id"]=id
         recipeJson["created_ts"]=created_ts
         recipeJson["updated_ts"]=updated_ts
         recipeJson["total_time_in_min"]=total_time_in_min
         recipeJson["author_id"]=authorID
-        return jsonify(recipeJson), 201 
+        return recipeJson
 
     except Exception as e:
         cursor.rollback()
@@ -92,7 +96,7 @@ def get_recipy(cursor, recipe_id):
 
         recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
-            return Response(status=404, mimetype='application/json')
+            raise ValueError('No Such Recipe')
 
         responseDict["id"] = recipe.id
         responseDict["cook_time_in_min"] = recipe.cook_time_in_min
@@ -132,7 +136,7 @@ def get_recipy(cursor, recipe_id):
 
         responseDict["steps"] = stepList
 
-        return jsonify(responseDict), 200
+        return responseDict
     except Exception as e:
         logger.debug("Exception in getting recipe: " + str(e))
         raise Exception(str(e))
@@ -142,7 +146,7 @@ def delete_recipy(cursor, recipe_id):
     try:
         recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
-            return Response(status=404, mimetype='application/json')
+            raise ValueError('No Such Recipe')
         cursor.delete(recipe)
 
         nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()
@@ -156,8 +160,7 @@ def delete_recipy(cursor, recipe_id):
         for step in steps:
             cursor.delete(step)
         
-        cursor.commit()
-        return Response(status=204, mimetype='application/json')
+        return True
 
 
     except Exception as e:
