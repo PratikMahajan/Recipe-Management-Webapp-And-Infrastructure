@@ -160,7 +160,7 @@ def delete_recipy(cursor, recipe_id):
         for step in steps:
             cursor.delete(step)
         
-
+        return True
 
 
     except Exception as e:

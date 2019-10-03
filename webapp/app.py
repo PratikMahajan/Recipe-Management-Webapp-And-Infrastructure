@@ -156,7 +156,7 @@ def add_recipe():
     try:
         retJson = insert_recipe(cursor,request.json,g.user.id)
         cursor.commit()
-        Response(json.dumps(retJson), status=201, mimetype='application/json')
+        return Response(json.dumps(retJson), status=201, mimetype='application/json')
 
     except Exception as e:
         logger.debug("Exception while adding recipe /v1/recipe/: " + str(e))
@@ -167,7 +167,7 @@ def add_recipe():
 def get_recipe(id):
     try:
         recJson = get_recipy(cursor,id)
-        Response(json.dumps(recJson), status=200, mimetype='application/json')
+        return Response(json.dumps(recJson), status=200, mimetype='application/json')
 
     except Exception as e:
         status = {'ERROR': str(e)}
@@ -202,7 +202,8 @@ def update_recipe(id):
         if delete_recipy(cursor, id):
             retJson = insert_recipe(cursor,request.json,g.user.id, recpID, createdTime)
             cursor.commit()
-            Response(json.dumps(retJson), status=201, mimetype='application/json')
+            return Response(json.dumps(retJson), status=201, mimetype='application/json')
+        return Response(status=403, mimetype='application/json')
 
     except Exception as e:
         status = {'ERROR': str(e)}
