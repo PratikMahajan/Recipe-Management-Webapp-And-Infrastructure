@@ -179,7 +179,7 @@ def get_recipe(id):
 @auth.login_required
 def delete_recipe(id):
     try:
-        if delete_recipy(cursor, id):
+        if delete_recipy(cursor, id,g.user.id):
             cursor.commit()
             return Response(status=204, mimetype='application/json')
         return Response(status=403, mimetype='application/json')
@@ -199,13 +199,14 @@ def update_recipe(id):
         recpID = recJson["id"]
         createdTime = recJson["created_ts"]
 
-        if delete_recipy(cursor, id):
+        if delete_recipy(cursor, id,g.user.id):
             retJson = insert_recipe(cursor,request.json,g.user.id, recpID, createdTime)
             cursor.commit()
             return Response(json.dumps(retJson), status=201, mimetype='application/json')
         return Response(status=403, mimetype='application/json')
 
     except Exception as e:
+        cursor.rollback()
         status = {'ERROR': str(e)}
         logger.debug("Exception while updating recipe /v1/recipe/{id}: " + str(e))
         return Response(json.dumps(status), status=400, mimetype='application/json')

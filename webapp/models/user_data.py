@@ -44,7 +44,7 @@ class User(Base):
             logger.debug("Exception in verify_auth_token: Signature Expired")
             return None
         except BadSignature:
-            logger.debug("Exception in verify_auth_token: Bad Signature")
+            #logger.debug("Exception in verify_auth_token: Bad Signature")
             return None
         user_id = data['id']
         return user_id

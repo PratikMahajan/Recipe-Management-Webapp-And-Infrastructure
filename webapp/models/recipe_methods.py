@@ -142,9 +142,9 @@ def get_recipy(cursor, recipe_id):
         raise Exception(str(e))
 
 
-def delete_recipy(cursor, recipe_id):
+def delete_recipy(cursor, recipe_id, authId):
     try:
-        recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
+        recipe = cursor.query(Recipe).filter_by(id=recipe_id,author_id=authId).first()
         if not recipe:
             raise ValueError('No Such Recipe')
         cursor.delete(recipe)
