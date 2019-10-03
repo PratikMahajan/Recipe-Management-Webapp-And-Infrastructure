@@ -72,7 +72,7 @@ def get_auth_token():
         return Response(json.dumps(status), status=200, mimetype='application/json')
     except Exception as e:
         logger.debug("Exception in get_auth_token: "+str(e))
-        return Response(status=404, mimetype='application/json')
+        return Response(status=403, mimetype='application/json')
 
 
 @app.route('/v1/user', methods=['POST'])
@@ -172,7 +172,7 @@ def get_recipe(id):
     except Exception as e:
         status = {'ERROR': str(e)}
         logger.debug("Exception while getting recipe /v1/recipe/<id>: " + str(e))
-        return Response(json.dumps(status), status=400, mimetype='application/json')
+        return Response(json.dumps(status), status=404, mimetype='application/json')
 
 
 @app.route('/v1/recipe/<id>', methods=['DELETE'])
@@ -209,7 +209,7 @@ def update_recipe(id):
         cursor.rollback()
         status = {'ERROR': str(e)}
         logger.debug("Exception while updating recipe /v1/recipe/{id}: " + str(e))
-        return Response(json.dumps(status), status=400, mimetype='application/json')
+        return Response(json.dumps(status), status=403, mimetype='application/json')
 
 
 @app.route('/health', methods=['GET', 'POST'])
