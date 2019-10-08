@@ -20,8 +20,6 @@ case $key in
     ;;
 esac
 
-export AWS_PROFILE=dev
-
 f () {
     errcode=$? # Error Code
     echo "ERROR $errcode"
