@@ -1,0 +1,29 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Parameters": {
+    "stackName": {
+      "Type":"String"
+    }
+  },
+  "Resources": {
+      "awsvpc": {
+        "Type" : "AWS::EC2::VPC",
+        "Properties" : {
+          "CidrBlock" : "10.0.0.0/16",
+          "EnableDnsSupport" : "true",
+          "EnableDnsHostnames" : "true",
+          "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackName"},"-csye6225-vpc"]] }}]
+         }
+	},
+"Outputs" : {
+      "awsvpcID" : {
+        "Description" : "The ID of vpc",
+        "Value" : {"Ref" : "awsvpc"},
+        "Export" : {
+          "Name" : "csye6225-cf-vpc"
+        }
+      }
+    }
+  }
+}
+
