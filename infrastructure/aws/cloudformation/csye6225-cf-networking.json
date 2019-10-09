@@ -12,18 +12,113 @@
           "CidrBlock" : "10.0.0.0/16",
           "EnableDnsSupport" : "true",
           "EnableDnsHostnames" : "true",
-          "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stackName"},"-csye6225-vpc"]] }}]
+          "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stack_Name"},"-csye6225-vpc"]] }}]
          }
 	},
-"Outputs" : {
+	"publicSubnet1" : {
+              "Type" : "AWS::EC2::VPC",
+              "Properties": {
+                      "CidrBlock" : "10.0.2.0/24",
+                      "AvailabilityZone" : "us-east-1a",
+                      "Tags":  [ { "Key" : "Name", "Value" : "Public-Subnet-1" } ]
+        }
+      },
+       "publicSubnet2" : {
+              "Type" : "AWS::EC2::VPC",
+              "Properties": {
+                      "CidrBlock" : "10.0.3.0/24",
+                      "AvailabilityZone" : "us-east-1b",
+                      "Tags":  [ { "Key" : "Name", "Value" : "Public-Subnet-2" } ]
+        }
+      },
+       "publicSubnet3" : {
+              "Type" : "AWS::EC2::VPC",
+              "Properties": {
+                      "CidrBlock" : "10.0.4.0/24",
+                      "AvailabilityZone" : "us-east-1c", "MapPublicIpOnLaunch": "true",
+                      "Tags":  [ { "Key" : "Name", "Value" : "Public-Subnet-3" } ]
+        }
+      },
+      "internetGateway": {
+	      "Type": "AWS::EC2::InternetGateway",
+	      "Properties": {
+		      "Tags": [ {"Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stack_Name"},"-csye6225-internetGateway"]]}}]
+        }
+      },
+       "AttachGateway" : {
+        "Type" : "AWS::EC2::VPCGatewayAttachment",
+        "Properties" : {
+          "VpcId" : { "Ref" : "awsvpc" },
+          "InternetGatewayId" : { "Ref" : "internetGateway" }
+        }
+      },
+      "publicRouteTable" : {
+        "Type" : "AWS::EC2::RouteTable",
+        "Properties" : {
+          "VpcId" : { "Ref" : "awsvpc" },
+          "Tags" : [ { "Key" : "Name", "Value" : {"Fn::Join" : ["",[{"Ref" : "stack_Name"},"-csye6225-rt"]]} } ]
+        }
+      },
+      "publicRoute" : {
+        "Type" : "AWS::EC2::Route",
+        "DependsOn" : "internetGateway",
+        "Properties" : {
+          "RouteTableId" : { "Ref" : "publicRouteTable" },
+          "DestinationCidrBlock" : "0.0.0.0/0",
+          "GatewayId" : { "Ref" : "internetGateway" }
+        }
+      },
+       "publicRTAssociationSub1" : {
+        "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties" : {
+          "RouteTableId" : {"Ref" : "publicRouteTable"},
+          "SubnetId" : {"Ref" : "publicSubnet1"}
+        }
+      },
+      "publicRTAssociationSub2" : {
+        "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties" : {
+          "RouteTableId" : {"Ref" : "publicRouteTable"},
+          "SubnetId" : {"Ref" : "publicSubnet2"}
+        }
+      },
+      "publicRTAssociationSub3" : {
+        "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties" : {
+          "RouteTableId" : {"Ref" : "publicRouteTable"},
+          "SubnetId" : {"Ref" : "publicSubnet3"}
+
+        }
+      },
+      "Outputs" : {
       "awsvpcID" : {
         "Description" : "The ID of vpc",
         "Value" : {"Ref" : "awsvpc"},
         "Export" : {
           "Name" : "csye6225-cf-vpc"
         }
+      },
+       "publicSubnet1Id" : {
+        "Description" : "The ID of public subnet 1",
+        "Value" : {"Ref" : "publicSubnet1"},
+        "Export" : {
+          "Name" : "csye6225-cf-dbsubnet1"
+        }
+      },
+      "publicSubnet2Id" : {
+        "Description" : "The ID of public subnet 2",
+        "Value" : {"Ref" : "publicSubnet2"},
+        "Export" : {
+          "Name" : "csye6225-cf-dbsubnet2"
+        }
+      },
+      "publicSubnet3Id" : {
+        "Description" : "The ID of public subnet 3",
+        "Value" : {"Ref" : "publicSubnet3"},
+        "Export" : {
+          "Name" : "csye6225-cf-websubnet1"
+        }
       }
-    }
   }
 }
 
