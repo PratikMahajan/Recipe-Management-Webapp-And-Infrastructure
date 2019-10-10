@@ -38,13 +38,13 @@ else
   echo "Creating VPC..."
   aws_resp=$(aws ec2 create-vpc --cidr-block $vpcCidrBlock --output json)
   echo "VPC creation Successful"
-  vpcId=$(echo -e "$aws_resp" |  /usr/bin/jq '.Vpc.VpcId' | tr -d '"')
+  vpcId=$(echo -e "$aws_resp" |  jq '.Vpc.VpcId' | tr -d '"')
   aws ec2 create-tags --resources "$vpcId" --tags Key=Name,Value="$vpcName"
 fi
 
 echo "Creating Route Table for VPC"
 route_table_response=$(aws ec2 create-route-table --vpc-id "$vpcId" --output json)
-routeTableId=$(echo -e "$route_table_response" |  /usr/bin/jq '.RouteTable.RouteTableId' | tr -d '"')
+routeTableId=$(echo -e "$route_table_response" |  jq '.RouteTable.RouteTableId' | tr -d '"')
 echo "Route Table creation successful"
 
 region=()
@@ -74,7 +74,7 @@ do
   else
   regionlist+=($availabilityZone)
   subnet_response=$(aws ec2 create-subnet --vpc-id "$vpcId" --cidr-block $subnetcidrblock --availability-zone=$availabilityZone)
-  subnetId=$(echo -e "$subnet_response" |  /usr/bin/jq '.Subnet.SubnetId' | tr -d '"')
+  subnetId=$(echo -e "$subnet_response" |  jq '.Subnet.SubnetId' | tr -d '"')
   associate_response=$(aws ec2 associate-route-table --subnet-id "$subnetId" --route-table-id "$routeTableId")
   aws ec2 create-tags --resources "$subnetId" --tags Key=Name,Value="$subnetName"
   echo "Subnet: $subnetName created successfully. SubnetID : $subnetId"
@@ -83,7 +83,7 @@ done
 
 echo "Creating Internet Gateway"
 gateway_response=$(aws ec2 create-internet-gateway --output json)
-gatewayId=$(echo -e "$gateway_response" |  /usr/bin/jq '.InternetGateway.InternetGatewayId' | tr -d '"')
+gatewayId=$(echo -e "$gateway_response" |  jq '.InternetGateway.InternetGatewayId' | tr -d '"')
 echo "Internet Gateway creation successful"
 
 echo "Attaching Internet Gateway to VPC"
@@ -103,9 +103,9 @@ fi
 echo "Updating the Security Groups"
 
 groupdetails=$(aws ec2 describe-security-groups --filters "Name=vpc-id,Values=$vpcId" --output json)
-groupid=$(echo -e "$groupdetails" |  /usr/bin/jq  '.SecurityGroups[0].GroupId' | tr -d '"')
-userIdGroupPairs=$(echo -e "$groupdetails" |  /usr/bin/jq  '.SecurityGroups[0].IpPermissions[0].UserIdGroupPairs[0].GroupId' | tr -d '"')
-cidrEgress=$(echo -e "$groupdetails" |  /usr/bin/jq  '.SecurityGroups[0].IpPermissionsEgress[0].IpRanges[0].CidrIp' | tr -d '"')
+groupid=$(echo -e "$groupdetails" |  jq  '.SecurityGroups[0].GroupId' | tr -d '"')
+userIdGroupPairs=$(echo -e "$groupdetails" |  jq  '.SecurityGroups[0].IpPermissions[0].UserIdGroupPairs[0].GroupId' | tr -d '"')
+cidrEgress=$(echo -e "$groupdetails" |  jq  '.SecurityGroups[0].IpPermissionsEgress[0].IpRanges[0].CidrIp' | tr -d '"')
 aws ec2 revoke-security-group-ingress --group-id "$groupid" --protocol all --source-group "$userIdGroupPairs"
 aws ec2 revoke-security-group-egress --group-id "$groupid" --protocol all --port all --cidr "$cidrEgress"
 security_response=$(aws ec2 authorize-security-group-ingress --group-id "$groupid" --protocol tcp --port 22 --cidr "$port22CidrBlock")
