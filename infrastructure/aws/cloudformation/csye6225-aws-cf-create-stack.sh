@@ -39,7 +39,6 @@ fi
 sed -i "s/REPLACE_STACK_NAME/$2/g" csye6225-cf-networking-parameters.json
 
 ##Creating Stack
-#echo "Creating Cloud Stack $1"
 response=$(aws cloudformation create-stack --stack-name "$2" --template-body file://csye6225-cf-networking.json --parameters file://csye6225-cf-networking-parameters.json)
 echo "Waiting for Stack $2 to be created"
 echo "$response"
