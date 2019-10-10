@@ -1,4 +1,5 @@
 #!/bin/bash
+clear
 
 if [ -z "$1" ]; then echo "Please select -d or --dev for dev ENV and -p or --prod for prod ENV"; exit 1; fi
 

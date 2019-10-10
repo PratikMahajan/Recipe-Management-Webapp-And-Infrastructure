@@ -8,13 +8,9 @@ key="$1"
 case $key in
     -d|--dev)
     export AWS_PROFILE=dev
-    shift # past argument
-    shift # past value
     ;;
     -p|--prod)
     export AWS_PROFILE=prod
-    shift # past argument
-    shift # past value
     ;;
 esac
 
@@ -32,20 +28,32 @@ f () {
 trap f ERR
 
 if [ -z "$2" ]; then
-	echo "Please enter stack name"
+	echo "Please enter the stack name";
+	exit 1;
 else
-	stackName="$2"
-	
-	stackTerminate=$(aws cloudformation delete-stack --stack-name $stackName)
-	if [$? -ep 0]; then
-		echo "Stack Deletion in progress"
-	
-	aws cloudformation wait stack-delete-complete --stack-name $stackName
-	echo $stackTerminate
-	echo "Stack is successfully deleted"
-        else
-		echo "Error in deleting stack"
-		echo $stackTerminate
-	fi
+	echo "VPC stack getting deleted...."
 fi
 
+echo " "
+echo "Deleting cloud stack with name: $2"
+echo " "
+
+stackList=$(aws cloudformation list-stacks --query 'StackSummaries[?StackStatus != `DELETE_COMPLETE`].{StackName:StackName}')
+
+if [ ! `echo $stackList | grep -w -c $2 ` -gt 0 ]
+then
+  echo "Stack with name: $2 does not exists"
+  echo "Stack deletion failed"
+  echo "Exiting..."
+  exit 2
+fi
+
+
+aws cloudformation delete-stack --stack-name $2
+echo "Stack deletion in progress"
+echo ""
+echo "Waiting for the stack $2 to be deleted"
+
+echo ""
+aws cloudformation wait stack-delete-complete --stack-name $2
+echo "Stack $2 deleted successfully"
