@@ -13,7 +13,7 @@
 
 **Run the script using the following command**
 ```shell script
-sh csye6225-aws-cf-create-stack.sh <ENV> <STACK_NAME>
+bash csye6225-aws-cf-create-stack.sh <ENV> <STACK_NAME>
 ```
 If the stack is created successfully, infrastructure is deployed, else error messages are displayed.
 
@@ -21,6 +21,6 @@ If the stack is created successfully, infrastructure is deployed, else error mes
 
 **Run the script using the following command**
 ```shell script
-sh csye6225-aws-cf-create-terminate-stack.sh <ENV> <STACK_NAME>
+bash csye6225-aws-cf-create-terminate-stack.sh <ENV> <STACK_NAME>
 ```
 If the stack is deleted successfully, infrastructure is torn down, else error messages are displayed.

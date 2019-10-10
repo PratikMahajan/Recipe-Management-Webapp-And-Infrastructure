@@ -10,7 +10,7 @@
 
 **Run the script using the following command**
 ```shell script
-sh csye6225-aws-networking-setup.sh <ENV> 
+bash csye6225-aws-networking-setup.sh <ENV> 
 ```
 **Please enter information as instructed in the script**
 If the vpc is created successfully, infrastructure is deployed, else error messages are displayed.
@@ -19,7 +19,7 @@ If the vpc is created successfully, infrastructure is deployed, else error messa
 
 **Run the script using the following command**
 ```shell script
-sh csye6225-aws-networking-teardown.sh <ENV>
+bash csye6225-aws-networking-teardown.sh <ENV>
 ```
 **Please enter information as instructed in the script**
 

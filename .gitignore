@@ -4,6 +4,7 @@ __pycache__
 *$py.class
 .idea
 *.secret
+.terraform
 
 # C extensions
 *.so
