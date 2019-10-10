@@ -8,13 +8,9 @@ key="$1"
 case $key in
     -d|--dev)
     export AWS_PROFILE=dev
-    shift # past argument
-    shift # past value
     ;;
     -p|--prod)
     export AWS_PROFILE=prod
-    shift # past argument
-    shift # past value
     ;;
 esac
 
