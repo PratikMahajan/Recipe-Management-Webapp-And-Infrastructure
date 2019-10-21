@@ -6,7 +6,7 @@ provider "aws" {
 
 module "dev_vps"{
   source          = "../../modules/vpc"
-  env             = "dev"
+  env             = var.env
   aws_region      = var.aws_region
   subnet1_az      = var.subnet1_az
   subnet1_cidr    = var.subnet1_cidr
@@ -29,6 +29,7 @@ module "dev_security_group"{
 module "dev_s3_bucket" {
   source          = "../../modules/s3_bucket"
   s3_bucket_name  = var.s3_bucket_name
+  env             = var.env
 }
 
 module "dev_rds_instance" {
@@ -45,4 +46,19 @@ module "dev_rds_instance" {
   subnet_group_id         = ["${module.dev_vps.aws_subnet1_id}", "${module.dev_vps.aws_subnet2_id}"]
   publicly_accessible     = var.publicly_accessible
   db_security_group       = [module.dev_security_group.aws_db_security_group]
+}
+
+module "dev_ec2_instance" {
+  source                    = "../../modules/ec2_instance"
+  aws_account_id            = var.aws_account_id
+  aws_ec2_security_group    = ["${module.dev_security_group.aws_app_security_group}"]
+  aws_ec2_subnet_id         = module.dev_vps.aws_subnet1_id
+  ebs_block_name            = var.ebs_block_name
+  ebs_delete_on_termination = var.ebs_delete_on_termination
+  ebs_volume_size           = var.ebs_volume_size
+  ebs_volume_type           = var.ebs_volume_type
+  ec2_instance_name         = var.ec2_instance_name
+  ec2_instance_type         = var.ec2_instance_type
+  ec2_termination_disable   = var.ec2_termination_disable
+  env                       = var.env
 }
