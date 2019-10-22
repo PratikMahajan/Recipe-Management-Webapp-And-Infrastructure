@@ -166,9 +166,8 @@ def add_recipe():
 @app.route('/v1/recipe/<id>', methods=['GET'])
 def get_recipe(id):
     try:
-        recJson = get_recipy(cursor,id)
-        return Response(json.dumps(recJson), status=200, mimetype='application/json')
-
+        resp,status=get_recipy(cursor,id)
+        return jsonify(resp),status
     except Exception as e:
         status = {'ERROR': str(e)}
         logger.debug("Exception while getting recipe /v1/recipe/<id>: " + str(e))
@@ -179,10 +178,8 @@ def get_recipe(id):
 @auth.login_required
 def delete_recipe(id):
     try:
-        if delete_recipy(cursor, id,g.user.id):
-            cursor.commit()
-            return Response(status=204, mimetype='application/json')
-        return Response(status=403, mimetype='application/json')
+        resp,status=delete_recipy(cursor, id,g.user.id)
+        return jsonify(resp),status
 
     except Exception as e:
         status = {'ERROR': str(e)}
@@ -194,16 +191,19 @@ def delete_recipe(id):
 @auth.login_required
 def update_recipe(id):
     try:
-        recJson = get_recipy(cursor, id)
-
+        recJson,status = get_recipy(cursor, id)
+        if status != 200:
+            return jsonify(recJson),status
         recpID = recJson["id"]
         createdTime = recJson["created_ts"]
 
-        if delete_recipy(cursor, id,g.user.id):
+        resp,stat =  delete_recipy(cursor, id,g.user.id)
+        if stat==204:
             retJson = insert_recipe(cursor,request.json,g.user.id, recpID, createdTime)
             cursor.commit()
-            return Response(json.dumps(retJson), status=201, mimetype='application/json')
-        return Response(status=403, mimetype='application/json')
+            return Response(json.dumps(retJson), status=204, mimetype='application/json')
+        else:
+            return jsonify(resp),stat
 
     except Exception as e:
         cursor.rollback()
