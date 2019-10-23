@@ -3,6 +3,7 @@ from models.recipe import *
 from models.ingredients import *
 from models.nutritioninformation import *
 from models.steps import *
+from models.image import *
 from models.recipe_methods import *
 from flask import Flask,Response, jsonify, request, abort,g
 from sqlalchemy.ext.declarative import declarative_base
@@ -16,14 +17,17 @@ from config.logger import *
 from config.envvar import *
 import json
 import re
+import boto3, botocore
 
+allowed_extentions=set(['png','jpg','jpeg'])
 auth = HTTPBasicAuth()
 
 engine = create_engine('mysql+pymysql://'+db_config["DB_USER"]+':'+db_config["DB_PASSWORD"]+'@'+db_config["DB_HOST"]+'/'
                        + db_config["DB_NAME"], pool_size=20)
 
-app = Flask(__name__)
+s3_resource = boto3.resource("s3", aws_access_key_id=aws_config["AWS_ACCESS_KEY_ID"], aws_secret_access_key=aws_config["AWS_SECRET_ACCESS_KEY"])
 
+app = Flask(__name__)
 
 def get_db():
     Base.metadata.bind = engine
@@ -39,6 +43,8 @@ def check_username(email):
         return True
     return False
 
+def allowed_file(name):
+    return '.' in name and name.rsplit('.', 1)[1] in allowed_extentions
 
 def check_password(password):
     if re.search('^(?=\S{8,20}$)(?=.*?\d)(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[^A-Za-z\s0-9])', password):
@@ -211,6 +217,35 @@ def update_recipe(id):
         logger.debug("Exception while updating recipe /v1/recipe/{id}: " + str(e))
         return Response(json.dumps(status), status=403, mimetype='application/json')
 
+
+@app.route('/v1/recipe/<id>/image', methods=['POST'])
+@auth.login_required
+def add_image(id):
+    try:
+        if 'file' not in request.files:
+            status={'ERROR':'No File part'}
+            return jsonify(status), 400
+        filee=request.files['file']
+        if filee.filename=='':
+            status={'ERROR':'No File selected'}
+            return jasonify(status),400
+        if filee and allowed_file(filee.filename):
+            recJson,status = get_recipy(cursor, id)
+            if status != 200:
+                return jsonify(recJson),status
+            imgId=str(uuid.uuid4())
+            s3_resource = boto3.resource('s3')
+            s3_resource.Bucket(aws_config["RECIPE_S3"]).put_object(Key=imgId,Body=filee)
+            img_url="https://s3.amazonaws.com/"+aws_config["RECIPE_S3"]+"/"+imgId
+            img=Image(id=imgId,recipe_id=id,url=img_url)
+            cursor.add(img)
+            cursor.commit()
+            return jsonify({'id':img.id,'url':img.url}), 201
+    except Exception as e:
+        cursor.rollback()
+        status = {'ERROR': str(e)}
+        logger.debug("Exception while adding image /v1/recipe/<id>/image: " + str(e))
+        return Response(json.dumps(status), status=400, mimetype='application/json')
 
 @app.route('/health', methods=['GET', 'POST'])
 @disable_logging
