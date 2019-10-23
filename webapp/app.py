@@ -4,6 +4,7 @@ from models.ingredients import *
 from models.nutritioninformation import *
 from models.steps import *
 from models.recipe_methods import *
+from models.image_methods import *
 from flask import Flask,Response, jsonify, request, abort,g
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -14,6 +15,7 @@ from flask_httpauth import HTTPBasicAuth
 from config.loggingfilter import *
 from config.logger import *
 from config.envvar import *
+from config.s3envvar import S3_KEY, S3_SECRET 
 import json
 import re
 
@@ -22,8 +24,9 @@ auth = HTTPBasicAuth()
 engine = create_engine('mysql+pymysql://'+db_config["DB_USER"]+':'+db_config["DB_PASSWORD"]+'@'+db_config["DB_HOST"]+'/'
                        + db_config["DB_NAME"], pool_size=20)
 
-app = Flask(__name__)
+s3_resource = boto3.resource("s3", aws_access_key_id=S3_KEY, aws_secret_access_key=S3_SECRET)
 
+app = Flask(__name__)
 
 def get_db():
     Base.metadata.bind = engine
@@ -210,6 +213,22 @@ def update_recipe(id):
         status = {'ERROR': str(e)}
         logger.debug("Exception while updating recipe /v1/recipe/{id}: " + str(e))
         return Response(json.dumps(status), status=403, mimetype='application/json')
+
+
+@app.route('/recipe/<id>/image', methods=['POST'])
+@auth.login_required
+def upload_file(id):
+
+    try:
+        s3_resource = boto3.resource('s3')
+        s3_resource.Bucket('dev-webapp.ashitaj.me').put_object(Key='recipe_image.jpeg', Body=request.files['file'])
+        return 'Successfull Upload'
+
+    except Exception as e:
+        logger.debug("Exception while adding recipe image: " + str(e))
+        return Response(status=400, mimetype='application/json')
+
+
 
 
 @app.route('/health', methods=['GET', 'POST'])
