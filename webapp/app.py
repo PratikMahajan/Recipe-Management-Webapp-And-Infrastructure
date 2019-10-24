@@ -242,8 +242,9 @@ def add_image(id):
             imgId=str(uuid.uuid4())
             #s3_resource = boto3.resource('s3')
             s3_resource.Bucket(aws_config["RECIPE_S3"]).put_object(Key=imgId,Body=filee)
+            s3Obj=boto3.client('s3').head_object(Bucket=aws_config["RECIPE_S3"],Key=imgId)
             img_url="https://s3.amazonaws.com/"+aws_config["RECIPE_S3"]+"/"+imgId
-            img=Image(id=imgId,recipe_id=id,url=img_url)
+            img=Image(id=imgId,recipe_id=id,url=img_url,img_metadata=str(s3Obj))
             cursor.add(img)
             cursor.commit()
             return jsonify({'id':img.id,'url':img.url}), 201
