@@ -210,6 +210,10 @@ def delete_img_recipe(cursor,rId):
 def get_img(cursor,imgId,rId):
     try:
         responseDict = {}
+        recipe = cursor.query(Recipe).filter_by(id=rId).first()
+        if not recipe:
+            status = {'ERROR':'No Such Recipe'}
+            return status, 404
         img = cursor.query(Image).filter_by(id=imgId).first()
         if not img:
             status = {'ERROR':'No Such Recipe Image'}
