@@ -16,7 +16,6 @@ from flask_httpauth import HTTPBasicAuth
 from config.loggingfilter import *
 from config.logger import *
 from config.envvar import *
-from config.s3envvar import S3_KEY, S3_SECRET 
 import json
 import re
 import boto3, botocore
@@ -27,11 +26,7 @@ auth = HTTPBasicAuth()
 engine = create_engine('mysql+pymysql://'+db_config["DB_USER"]+':'+db_config["DB_PASSWORD"]+'@'+db_config["DB_HOST"]+'/'
                        + db_config["DB_NAME"], pool_size=20)
 
-<<<<<<< HEAD
-s3_resource = boto3.resource("s3", aws_access_key_id=S3_KEY, aws_secret_access_key=S3_SECRET)
-=======
 s3_resource = boto3.resource("s3", aws_access_key_id=aws_config["AWS_ACCESS_KEY_ID"], aws_secret_access_key=aws_config["AWS_SECRET_ACCESS_KEY"])
->>>>>>> e0bccaf9bbebff80eede5744e6c752455c67bb7f
 
 app = Flask(__name__)
 
@@ -225,22 +220,6 @@ def update_recipe(id):
 
 
 
-@app.route('/recipe/<id>/image', methods=['POST'])
-@auth.login_required
-def upload_file(id):
-
-    try:
-        s3_resource = boto3.resource('s3')
-        s3_resource.Bucket('dev-webapp.ashitaj.me').put_object(Key='recipe_image.jpeg', Body=request.files['file'])
-        return 'Successfull Upload'
-
-    except Exception as e:
-        logger.debug("Exception while adding recipe image: " + str(e))
-        return Response(status=400, mimetype='application/json')
-
-
-
-
 @app.route('/v1/recipe/<id>/image', methods=['POST'])
 @auth.login_required
 def add_image(id):
@@ -257,7 +236,7 @@ def add_image(id):
             if status != 200:
                 return jsonify(recJson),status
             imgId=str(uuid.uuid4())
-            s3_resource = boto3.resource('s3')
+#            s3_resource = boto3.resource('s3')
             s3_resource.Bucket(aws_config["RECIPE_S3"]).put_object(Key=imgId,Body=filee)
             img_url="https://s3.amazonaws.com/"+aws_config["RECIPE_S3"]+"/"+imgId
             img=Image(id=imgId,recipe_id=id,url=img_url)
