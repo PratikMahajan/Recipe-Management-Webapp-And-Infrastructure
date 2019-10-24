@@ -242,11 +242,7 @@ def add_image(id):
             for imgId in imgIds:
                 s3_resource.Bucket(aws_config["RECIPE_S3"]).delete_objects(Delete={'Objects':[{'Key':imgId}]})
             imgId=str(uuid.uuid4())
-<<<<<<< HEAD
-#            s3_resource = boto3.resource('s3')
-=======
             #s3_resource = boto3.resource('s3')
->>>>>>> c5aba61f42d8cc797066c19e90e352cbe9c06b1d
             s3_resource.Bucket(aws_config["RECIPE_S3"]).put_object(Key=imgId,Body=filee)
             s3Obj=boto3.client('s3').head_object(Bucket=aws_config["RECIPE_S3"],Key=imgId)
             img_url="https://s3.amazonaws.com/"+aws_config["RECIPE_S3"]+"/"+imgId
@@ -260,9 +256,6 @@ def add_image(id):
         logger.debug("Exception while adding image /v1/recipe/<id>/image: " + str(e))
         return Response(json.dumps(status), status=400, mimetype='application/json')
 
-<<<<<<< HEAD
-
-=======
 @app.route('/v1/recipe/<recipeId>/image/<imageId>', methods=['DELETE'])
 @auth.login_required
 def delete_image(recipeId,imageId):
@@ -295,7 +288,6 @@ def get_image(recipeId,imageId):
         logger.debug("Exception while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(e))
         return Response(json.dumps(status), status=404, mimetype='application/json')
         
->>>>>>> c5aba61f42d8cc797066c19e90e352cbe9c06b1d
 @app.route('/health', methods=['GET', 'POST'])
 @disable_logging
 def health_probe() -> Response:
