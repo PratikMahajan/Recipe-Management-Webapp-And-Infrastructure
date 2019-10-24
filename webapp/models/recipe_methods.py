@@ -5,9 +5,11 @@ from config.loggingfilter import *
 from config.logger import *
 import json
 from models.recipe import *
+from models.image import *
 from models.ingredients import *
 from models.nutritioninformation import *
 from models.steps import *
+from sqlalchemy import or_
 
 def round_to_5(number):
     try:
@@ -96,7 +98,8 @@ def get_recipy(cursor, recipe_id):
 
         recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
-            raise ValueError('No Such Recipe')
+            status = {'ERROR':'No Such Recipe'}
+            return status, 404
 
         responseDict["id"] = recipe.id
         responseDict["cook_time_in_min"] = recipe.cook_time_in_min
@@ -136,7 +139,7 @@ def get_recipy(cursor, recipe_id):
 
         responseDict["steps"] = stepList
 
-        return responseDict
+        return responseDict, 200
     except Exception as e:
         logger.debug("Exception in getting recipe: " + str(e))
         raise Exception(str(e))
@@ -144,9 +147,14 @@ def get_recipy(cursor, recipe_id):
 
 def delete_recipy(cursor, recipe_id, authId):
     try:
-        recipe = cursor.query(Recipe).filter_by(id=recipe_id,author_id=authId).first()
+        recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
-            raise ValueError('No Such Recipe')
+            status = {'ERROR':'No Such Recipe'}
+            return status, 404
+        else:
+            if recipe.author_id!=authId:
+               status = {'ERROR':'UnAuthorized'}
+               return status, 401
         cursor.delete(recipe)
 
         nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()
@@ -159,10 +167,65 @@ def delete_recipy(cursor, recipe_id, authId):
         steps = cursor.query(Steps).filter_by(recipe_id=recipe_id).all()
         for step in steps:
             cursor.delete(step)
-        
-        return True
+        cursor.commit()
+        return {},204 
+        #return True
 
 
     except Exception as e:
         logger.debug("Exception in deleting recipe: " + str(e))
         raise Exception(str(e))
+
+def delete_img(cursor,imgId,rId):
+    try:
+        img = cursor.query(Image).filter_by(id=imgId).first()
+        if not img:
+            status = {'ERROR':'No Such Recipe Image'}
+            return status, 404
+        else:
+            if img.recipe_id!=rId:
+                status = {'ERROR':'No such image for the given recipe'}
+                return status, 404
+        cursor.delete(img)
+        cursor.commit()
+        return {},204 
+    except Exception as e:
+        logger.debug("Exception in deleting image: " + str(e))
+        raise Exception(str(e))
+
+def delete_img_recipe(cursor,rId):
+    try:
+        imgs = cursor.query(Image).filter_by(recipe_id=rId).all()
+        imgIds=[]
+        for img in imgs:
+            cursor.delete(img)
+            imgIds.append(img.id)
+            cursor.commit()
+        return imgIds
+
+    except Exception as e:
+        logger.debug("Exception in deleting image via recipe: " + str(e))
+        raise Exception(str(e))
+
+def get_img(cursor,imgId,rId):
+    try:
+        responseDict = {}
+        recipe = cursor.query(Recipe).filter_by(id=rId).first()
+        if not recipe:
+            status = {'ERROR':'No Such Recipe'}
+            return status, 404
+        img = cursor.query(Image).filter_by(id=imgId).first()
+        if not img:
+            status = {'ERROR':'No Such Recipe Image'}
+            return status, 404
+        else:
+            if img.recipe_id!=rId:
+               status = {'ERROR':'No such image for the given recipe'}
+               return status, 404
+        responseDict["id"]=img.id
+        responseDict["url"]=img.url
+        return responseDict, 200
+    except Exception as e:
+        logger.debug("Exception in getting recipe image: " + str(e))
+        raise Exception(str(e))
+
