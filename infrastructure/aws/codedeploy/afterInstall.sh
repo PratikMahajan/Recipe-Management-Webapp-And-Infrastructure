@@ -9,5 +9,7 @@ pip install -r requirements.txt --user
   export DB_HOST=$DB_HOST
 } >> /etc/environment
 
+make run
+
 
 
