@@ -35,7 +35,7 @@ jobs:
             echo "Copying Make Script"
             cp ../webapp/Makefile .
             echo "Copying requirements"
-            cp ../webapp/requirements.txt .
+            cp ../webapp/requirements.txt ./scripts/requirements.txt
             echo "Copying codedeploy appspec"
             cp ../appspec.yml .
             echo "Copying Install Scripts"
