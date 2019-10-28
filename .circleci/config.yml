@@ -26,8 +26,6 @@ jobs:
             cd codedeploy_artifact
             echo "Copying config folder"
             cp -r ../webapp/config .
-            echo "Copying Deploy Folder"
-            cp -r ../webapp/deploy .
             echo "Copying Models Folder"
             cp -r ../webapp/models .
             echo "Copying app.py"
