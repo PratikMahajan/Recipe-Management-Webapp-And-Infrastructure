@@ -34,12 +34,12 @@ jobs:
             cp ../webapp/gunicornstart.sh .
             echo "Copying Make Script"
             cp ../webapp/Makefile .
-            echo "Copying requirements"
-            cp ../webapp/requirements.txt ./scripts/requirements.txt
-            echo "Copying codedeploy appspec"
-            cp ../appspec.yml .
             echo "Copying Install Scripts"
             cp -r ../infrastructure/aws/codedeploy/ ./scripts
+            echo "Copying requirements"
+            cp ../webapp/requirements.txt ./scripts/
+            echo "Copying codedeploy appspec"
+            cp ../appspec.yml .
             echo "Zipping all files in the codedeploy_artifact directory"
             zip -r recipe-webapp-${CIRCLE_BUILD_NUM}.zip .
             ls -al
