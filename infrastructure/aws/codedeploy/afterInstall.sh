@@ -1,12 +1,11 @@
 #!/bin/bash
 
-sudo systemctl stop tomcat.service
+pip install -r requirements.txt --user
 
-sudo rm -rf /opt/tomcat/webapps/docs  /opt/tomcat/webapps/examples /opt/tomcat/webapps/host-manager  /opt/tomcat/webapps/manager /opt/tomcat/webapps/ROOT
+{
+  export DB_USER=$DB_USER
+  export DB_PASSWORD=$DB_PASSWORD
+  export DATABASE_NAME=$DATABASE_NAME
+  export DB_HOST=$DB_HOST
+} >> /etc/environment
 
-sudo chown tomcat:tomcat /opt/tomcat/webapps/ROOT.war
-
-# cleanup log files
-sudo rm -rf /opt/tomcat/logs/catalina*
-sudo rm -rf /opt/tomcat/logs/*.log
-sudo rm -rf /opt/tomcat/logs/*.txt
