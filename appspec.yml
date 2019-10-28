@@ -7,6 +7,6 @@
 
  hooks:
    AfterInstall:
-    - location: ./deploy/afterInstall.sh
+    - location: ./scripts/afterInstall.sh
       timeout: 180
       runas: centos
