@@ -2,7 +2,55 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/python:3.8-rc
     steps:
       - checkout
-      
+      - run:
+          name    : Install packages
+          command : |
+            sudo apt-get update && sudo apt-get install wget zip unzip python-pip python-dev build-essential -y
+            python --version
+      - run:
+          name    : Install awscli
+          command : sudo pip install awscli
+      - run:
+          name    : Zip Artifact
+          command : |
+            echo "Hello the current build number is ${CIRCLE_BUILD_NUM}"
+            pwd
+            echo "Listing current directory content"
+            ls -al
+            echo "Making the codedeploy_artifact directory"
+            mkdir -p codedeploy_artifact
+            echo "Changing directory to codedeploy_artifact"
+            cd codedeploy_artifact
+            echo "Copying config folder"
+            cp -r ../webapp/config .
+            echo "Copying Models Folder"
+            cp -r ../webapp/models .
+            echo "Copying app.py"
+            cp ../webapp/app.py .
+            echo "Copying gunicorn start script"
+            cp ../webapp/gunicornstart.sh .
+            echo "Copying Make Script"
+            cp ../webapp/Makefile .
+            echo "Copying requirements"
+            cp ../webapp/requirements.txt .
+            echo "Zipping all files in the codedeploy_artifact directory"
+            zip -r recipe-webapp-${CIRCLE_BUILD_NUM}.zip .
+            ls -al
+            pwd
+            echo "Changing directory to root"
+            cd ..
+            pwd
+            ls -al
+      - run:
+          name: Upload Artifact to S3
+          command: |
+            echo "Uploading Artifact to S3 bucket ${CODE_DEPLOY_S3_BUCKET}"
+            cd codedeploy_artifact
+            aws s3 cp recipe-webapp-${CIRCLE_BUILD_NUM}.zip s3://${CODE_DEPLOY_S3_BUCKET}
+            cd ..
+
+
+
