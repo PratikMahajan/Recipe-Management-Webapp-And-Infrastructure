@@ -26,6 +26,8 @@ jobs:
             cd codedeploy_artifact
             echo "Copying config folder"
             cp -r ../webapp/config .
+            echo "Copying Deploy Folder"
+            cp -r ../webapp/deploy .
             echo "Copying Models Folder"
             cp -r ../webapp/models .
             echo "Copying app.py"
@@ -36,6 +38,8 @@ jobs:
             cp ../webapp/Makefile .
             echo "Copying requirements"
             cp ../webapp/requirements.txt .
+            echo "Copying codedeploy appspec"
+            cp cp ../appspec.yml .
             echo "Zipping all files in the codedeploy_artifact directory"
             zip -r recipe-webapp-${CIRCLE_BUILD_NUM}.zip .
             ls -al
