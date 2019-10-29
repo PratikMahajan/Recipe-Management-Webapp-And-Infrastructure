@@ -1,5 +1,5 @@
-http://*:80{
-    proxy / http://unix:/home/centos/webapp/recipewebapp.sock {
+http://*:80 {
+    proxy / http://0.0.0.0:8080 {
         transparent
     }
 }

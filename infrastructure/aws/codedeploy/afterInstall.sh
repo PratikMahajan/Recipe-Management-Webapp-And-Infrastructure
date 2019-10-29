@@ -16,7 +16,6 @@ sudo systemctl status gunicorn
 
 
 
-
 #read -d '' data <<EOF
 #DB_USER=$DB_USER
 #DB_PASSWORD=$DB_PASSWORD
