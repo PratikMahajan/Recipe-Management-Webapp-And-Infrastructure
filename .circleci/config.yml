@@ -40,6 +40,8 @@ jobs:
             cp ../webapp/requirements.txt ./scripts/
             echo "Copying codedeploy appspec"
             cp ../appspec.yml .
+            echo "Copying gunicorn service"
+            cp ../webapp/gunicorn_config/gunicorn.service .
             echo "Zipping all files in the codedeploy_artifact directory"
             zip -r recipe-webapp-${CIRCLE_BUILD_NUM}.zip .
             ls -al
