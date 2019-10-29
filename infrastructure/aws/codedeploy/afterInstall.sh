@@ -4,8 +4,10 @@
 sudo chown -R centos:centos /home/centos/webapp/
 pip3 install -r /home/centos/webapp/scripts/requirements.txt --user
 
-./home/centos/webapp/gunicornstart.sh
-./home/centos/webapp/gunicornstart.sh
+
+cd /home/centos/webapp
+./gunicornstart.sh
+./gunicornstart.sh
 
 #read -d '' data <<EOF
 #DB_USER=$DB_USER
