@@ -7,7 +7,7 @@ User=centos
 Group=centos
 WorkingDirectory=/home/centos/webapp
 EnvironmentFile=/etc/environment
-ExecStart=/home/centos/.local/bin/gunicorn --workers 5 --log-level=info --log-file=/home/centos/logs/gunicorn.log --bind unix:/home/centos/webapp/recipewebapp.sock -m 007 --chdir /home/centos/webapp wsgi:app
+ExecStart=/home/centos/.local/bin/gunicorn --workers 5 --log-level=info --log-file=/home/centos/logs/gunicorn.log --bind unix:/home/centos/webapp/recipewebapp.sock -m 007 --chdir /home/centos/webapp app:app
 
 [Install]
 WantedBy=multi-user.target
