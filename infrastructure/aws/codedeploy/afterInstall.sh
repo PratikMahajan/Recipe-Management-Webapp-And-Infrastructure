@@ -1,17 +1,17 @@
 #!/bin/bash
 
+
 sudo chown -R centos:centos /home/centos/webapp/
-pip3 install -r requirements.txt --user
+pip3 install -r scripts/requirements.txt --user
 
 
-#{
-#  export DB_USER=$DB_USER
-#  export DB_PASSWORD=$DB_PASSWORD
-#  export DATABASE_NAME=$DATABASE_NAME
-#  export DB_HOST=$DB_HOST
-#} >> /etc/environment
-
-#make run
-
-
-
+#read -d '' data <<EOF
+#DB_USER=$DB_USER
+#DB_PASSWORD=$DB_PASSWORD
+#DATABASE_NAME=$DATABASE_NAME
+#DB_HOST=$DB_HOST
+#EOF
+#
+#sudo echo "$data" >> /etc/environment
+#
+#source /etc/environment
