@@ -41,7 +41,7 @@ jobs:
             echo "Copying codedeploy appspec"
             cp ../appspec.yml .
             echo "Copying gunicorn service"
-            cp ../webapp/gunicorn_config/gunicorn.service .
+            cp ../webapp/service_files/gunicorn.service .
             echo "copying caddyfile"
             cp ../webapp/Caddyfile .
             echo "Zipping all files in the codedeploy_artifact directory"
