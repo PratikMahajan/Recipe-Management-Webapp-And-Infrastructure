@@ -10,7 +10,3 @@
     - location: ./scripts/afterInstall.sh
       timeout: 180
       runas: centos
-    ApplicationStart:
-    - location: ./gunicornstart.sh
-      timeout: 180
-      runas: centos
