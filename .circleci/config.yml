@@ -44,6 +44,8 @@ jobs:
             cp ../webapp/service_files/gunicorn.service .
             echo "copying caddyfile"
             cp ../webapp/Caddyfile .
+            echo "Copying caddy service"
+            cp ../webapp/service_files/caddy.service .
             echo "Zipping all files in the codedeploy_artifact directory"
             zip -r recipe-webapp-${CIRCLE_BUILD_NUM}.zip .
             ls -al
