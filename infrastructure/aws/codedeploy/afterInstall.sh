@@ -24,11 +24,8 @@ sudo mv /home/centos/webapp/caddy.service /etc/systemd/system/
 sudo systemctl daemon-reload >/dev/null 2>&1 &
 sudo systemctl start caddy >/dev/null 2>&1 &
 #sudo systemctl status caddy
-echo "Closing stdout "
-exec <&- >&- 2>&-
-
 echo "---------After Install Script Execution Completed------------"
-
+exit (0)
 #read -d '' data <<EOF
 #DB_USER=$DB_USER
 #DB_PASSWORD=$DB_PASSWORD
