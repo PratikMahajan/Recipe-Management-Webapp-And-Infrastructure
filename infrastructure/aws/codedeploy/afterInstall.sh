@@ -4,7 +4,7 @@
 sudo chown -R centos:centos /home/centos/webapp/
 pip3 install -r /home/centos/webapp/scripts/requirements.txt --user
 
-sudo mkdir /home/centos/logs
+sudo mkdir -p /home/centos/logs
 sudo touch /home/centos/logs/gunicorn.log
 sudo tail -n 0 -f /home/centos/logs/gunicorn*.log &
 sudo chown -R centos:centos /home/centos/logs/
