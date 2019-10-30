@@ -12,13 +12,13 @@ sudo chown -R centos:centos /home/centos/logs/
 sudo mv /home/centos/webapp/gunicorn.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl start gunicorn
-sudo systemctl status gunicorn
+#sudo systemctl status gunicorn
 
 sudo cp /home/centos/webapp/Caddyfile /etc/caddy/
 sudo mv /home/centos/webapp/caddy.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl start caddy
-sudo systemctl status caddy
+#sudo systemctl status caddy
 
 #read -d '' data <<EOF
 #DB_USER=$DB_USER
