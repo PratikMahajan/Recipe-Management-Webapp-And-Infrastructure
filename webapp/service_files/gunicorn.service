@@ -10,6 +10,9 @@ EnvironmentFile=/etc/environment
 ExecStart=/home/centos/.local/bin/gunicorn --workers 5 --log-level=info --log-file=/home/centos/logs/gunicorn.log --bind 0.0.0.0:8080 -m 007 --chdir /home/centos/webapp app:app
 Restart=always
 
+StandardOutput=null
+StandardError=journal
+
 [Install]
 WantedBy=multi-user.target
 
