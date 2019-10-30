@@ -15,15 +15,17 @@ sudo tail -n 0 -f /home/centos/logs/gunicorn*.log &
 sudo chown -R centos:centos /home/centos/logs/
 
 sudo mv /home/centos/webapp/gunicorn.service /etc/systemd/system/
-sudo systemctl daemon-reload > /dev/null 2>&1 &
-sudo systemctl start gunicorn > /dev/null 2>&1 &
+sudo systemctl daemon-reload >/dev/null 2>&1 &
+sudo systemctl start gunicorn >/dev/null 2>&1 &
 #sudo systemctl status gunicorn
 
 sudo cp /home/centos/webapp/Caddyfile /etc/caddy/
 sudo mv /home/centos/webapp/caddy.service /etc/systemd/system/
-sudo systemctl daemon-reload > /dev/null 2>&1 &
-sudo systemctl start caddy > /dev/null 2>&1 &
+sudo systemctl daemon-reload >/dev/null 2>&1 &
+sudo systemctl start caddy >/dev/null 2>&1 &
 #sudo systemctl status caddy
+echo "Closing stdout "
+exec <&- >&- 2>&-
 
 echo "---------After Install Script Execution Completed------------"
 
