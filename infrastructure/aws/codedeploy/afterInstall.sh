@@ -25,6 +25,7 @@ sudo systemctl start caddy >/dev/null 2>&1
 #sudo systemctl status caddy
 echo "---------After Install Script Execution Completed------------"
 exit 0
+
 #read -d '' data <<EOF
 #DB_USER=$DB_USER
 #DB_PASSWORD=$DB_PASSWORD
