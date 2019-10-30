@@ -23,6 +23,10 @@ sudo mv /home/centos/webapp/caddy.service /etc/systemd/system/
 sudo systemctl daemon-reload >/dev/null 2>&1
 sudo systemctl start caddy >/dev/null 2>&1
 #sudo systemctl status caddy
+
+echo "fetching cloudwatch schema"
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/centos/webapp/scripts/amazon-cloudwatch-agent-schema.json -s
+
 echo "---------After Install Script Execution Completed------------"
 exit 0
 
