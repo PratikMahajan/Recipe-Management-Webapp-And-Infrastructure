@@ -2,7 +2,7 @@
 
 
 sudo chown -R centos:centos /home/centos/webapp/
-pip3 install -r /home/centos/webapp/scripts/requirements.txt --user 2>&1
+pip3 install -r /home/centos/webapp/scripts/requirements.txt --user 2>&1 &
 
 dir_name=/home/centos/logs
 if [ -d "$dir_name" ]; then
@@ -16,14 +16,16 @@ sudo chown -R centos:centos /home/centos/logs/
 
 sudo mv /home/centos/webapp/gunicorn.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl start gunicorn > /dev/null 2>&1
+sudo systemctl start gunicorn > /dev/null 2>&1 &
 #sudo systemctl status gunicorn
 
 sudo cp /home/centos/webapp/Caddyfile /etc/caddy/
 sudo mv /home/centos/webapp/caddy.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl start caddy > /dev/null 2>&1
+sudo systemctl start caddy > /dev/null 2>&1 &
 #sudo systemctl status caddy
+
+echo "---------After Install Script Execution Completed------------"
 
 #read -d '' data <<EOF
 #DB_USER=$DB_USER
