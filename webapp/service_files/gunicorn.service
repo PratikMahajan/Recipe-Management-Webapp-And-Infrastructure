@@ -11,7 +11,7 @@ ExecStart=/home/centos/.local/bin/gunicorn --workers 5 --log-level=info --log-fi
 Restart=always
 
 StandardOutput=null
-StandardError=journal
+StandardError=null
 
 [Install]
 WantedBy=multi-user.target
