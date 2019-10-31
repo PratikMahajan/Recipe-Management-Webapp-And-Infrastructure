@@ -5,9 +5,10 @@ __pycache__
 .idea
 *.secret
 .terraform
-*.tfstate
+*.tfstate*
 *.tfstate.backup
 *.tfvars
+*.tfstate.lock.info
 # C extensions
 *.so
 
