@@ -248,6 +248,9 @@ def add_image(id):
             cursor.add(img)
             cursor.commit()
             return jsonify({'id':img.id,'url':img.url}), 201
+        else:
+            status={'ERROR':'only .png,.jpg,jpeg files are supported'}
+            return jsonify(status), 400
     except Exception as e:
         cursor.rollback()
         status = {'ERROR': str(e)}
