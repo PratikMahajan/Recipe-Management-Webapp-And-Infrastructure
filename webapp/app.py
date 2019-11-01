@@ -89,7 +89,7 @@ def get_auth_token():
 @statsd.timer('createUser')
 def new_user():
     try:
-        statsd.incr('createUser')
+        statsd.incr('cntrcreateUser')
         username = request.json.get('email_address')
         password = request.json.get('password')
 
@@ -129,7 +129,7 @@ def new_user():
 @statsd.timer('getUser')
 def get_user():
     try:
-        statsd.incr('getUser')
+        statsd.incr('cntrgetUser')
         return jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
                         'email_address': g.user.email_address, 'account_created': g.user.account_created,
                         'account_updated': g.user.account_updated}), 200
@@ -143,7 +143,7 @@ def get_user():
 @statsd.timer('updateUser')
 def update_user():
     try:
-        statsd.incr('updateUser')
+        statsd.incr('cntrupdateUser')
         if ((request.json.get('id') is not  None) or (request.json.get('email_address') is not None) or
                 (request.json.get('account_created') is not None) or (request.json.get('account_updated') is not None)):
             return Response(status=400, mimetype='application/json')
@@ -171,7 +171,7 @@ def update_user():
 @statsd.timer('createRecipe')
 def add_recipe():
     try:
-        statsd.incr('createRecipe')
+        statsd.incr('cntrcreateRecipe')
         retJson = insert_recipe(cursor,request.json,g.user.id)
         cursor.commit()
         return Response(json.dumps(retJson), status=201, mimetype='application/json')
@@ -185,7 +185,7 @@ def add_recipe():
 @statsd.timer('getRecipe')
 def get_recipe(id):
     try:
-        statsd.incr('getRecipe')
+        statsd.incr('cntrgetRecipe')
         resp,status=get_recipy(cursor,id)
         return jsonify(resp),status
     except Exception as e:
@@ -199,7 +199,7 @@ def get_recipe(id):
 @statsd.timer('deleteRecipe')
 def delete_recipe(id):
     try:
-        statsd.incr('deleteRecipe')
+        statsd.incr('cntrdeleteRecipe')
         resp,status=delete_recipy(cursor, id,g.user.id)
         return jsonify(resp),status
 
@@ -214,7 +214,7 @@ def delete_recipe(id):
 @statsd.timer('updateRecipe')
 def update_recipe(id):
     try:
-        statsd.incr('updateRecipe')
+        statsd.incr('cntrupdateRecipe')
         recJson,status = get_recipy(cursor, id)
         if status != 200:
             return jsonify(recJson),status
@@ -241,7 +241,7 @@ def update_recipe(id):
 @statsd.timer('addImage')
 def add_image(id):
     try:
-        statsd.incr('addImage')
+        statsd.incr('cntraddImage')
         if 'file' not in request.files:
             status={'ERROR':'No File part'}
             return jsonify(status), 400
@@ -282,7 +282,7 @@ def add_image(id):
 @statsd.timer('deleteImage')
 def delete_image(recipeId,imageId):
     try:
-        statsd.incr('deleteImage')
+        statsd.incr('cntrdeleteImage')
         recJson,status = get_recipy(cursor, recipeId)
         if status != 200:
             return jsonify(recJson),status
@@ -305,7 +305,7 @@ def delete_image(recipeId,imageId):
 @statsd.timer('getImage')
 def get_image(recipeId,imageId):
     try:
-        statsd.incr('getImage')
+        statsd.incr('cntrgetImage')
         resp,status=get_img(cursor,imageId,recipeId)
         return jsonify(resp),status
     except Exception as e:
