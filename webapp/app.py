@@ -89,7 +89,7 @@ def get_auth_token():
 @statsd.timer('createUser')
 def new_user():
     try:
-        #statsd.incr('createUser')
+        statsd.incr('createUser')
         username = request.json.get('email_address')
         password = request.json.get('password')
 
