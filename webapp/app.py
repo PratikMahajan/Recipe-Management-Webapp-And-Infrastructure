@@ -18,6 +18,8 @@ from config.envvar import *
 import json
 import re
 import boto3, botocore
+import time
+from statsd import StatsClient
 
 allowed_extentions=set(['png','jpg','jpeg'])
 auth = HTTPBasicAuth()
@@ -26,6 +28,8 @@ engine = create_engine('mysql+pymysql://'+db_config["DB_USER"]+':'+db_config["DB
                        + db_config["DB_NAME"], pool_size=20)
 
 s3_resource = boto3.resource("s3", aws_access_key_id=aws_config["AWS_ACCESS_KEY_ID"], aws_secret_access_key=aws_config["AWS_SECRET_ACCESS_KEY"])
+
+statsd = StatsClient(host='localhost', port=8125, prefix='webapp2')
 
 app = Flask(__name__)
 
@@ -82,8 +86,10 @@ def get_auth_token():
 
 
 @app.route('/v1/user', methods=['POST'])
+@statsd.timer('createUser')
 def new_user():
     try:
+        statsd.incr('cntrcreateUser')
         username = request.json.get('email_address')
         password = request.json.get('password')
 
@@ -120,8 +126,10 @@ def new_user():
 
 @app.route('/v1/user/self', methods=['GET'])
 @auth.login_required
+@statsd.timer('getUser')
 def get_user():
     try:
+        statsd.incr('cntrgetUser')
         return jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
                         'email_address': g.user.email_address, 'account_created': g.user.account_created,
                         'account_updated': g.user.account_updated}), 200
@@ -132,8 +140,10 @@ def get_user():
 
 @app.route('/v1/user/self', methods=['PUT'])
 @auth.login_required
+@statsd.timer('updateUser')
 def update_user():
     try:
+        statsd.incr('cntrupdateUser')
         if ((request.json.get('id') is not  None) or (request.json.get('email_address') is not None) or
                 (request.json.get('account_created') is not None) or (request.json.get('account_updated') is not None)):
             return Response(status=400, mimetype='application/json')
@@ -158,8 +168,10 @@ def update_user():
 
 @app.route('/v1/recipe/', methods=['POST'])
 @auth.login_required
+@statsd.timer('createRecipe')
 def add_recipe():
     try:
+        statsd.incr('cntrcreateRecipe')
         retJson = insert_recipe(cursor,request.json,g.user.id)
         cursor.commit()
         return Response(json.dumps(retJson), status=201, mimetype='application/json')
@@ -170,8 +182,10 @@ def add_recipe():
 
 
 @app.route('/v1/recipe/<id>', methods=['GET'])
+@statsd.timer('getRecipe')
 def get_recipe(id):
     try:
+        statsd.incr('cntrgetRecipe')
         resp,status=get_recipy(cursor,id)
         return jsonify(resp),status
     except Exception as e:
@@ -182,8 +196,10 @@ def get_recipe(id):
 
 @app.route('/v1/recipe/<id>', methods=['DELETE'])
 @auth.login_required
+@statsd.timer('deleteRecipe')
 def delete_recipe(id):
     try:
+        statsd.incr('cntrdeleteRecipe')
         resp,status=delete_recipy(cursor, id,g.user.id)
         return jsonify(resp),status
 
@@ -195,8 +211,10 @@ def delete_recipe(id):
 
 @app.route('/v1/recipe/<id>', methods=['PUT'])
 @auth.login_required
+@statsd.timer('updateRecipe')
 def update_recipe(id):
     try:
+        statsd.incr('cntrupdateRecipe')
         recJson,status = get_recipy(cursor, id)
         if status != 200:
             return jsonify(recJson),status
@@ -220,8 +238,10 @@ def update_recipe(id):
 
 @app.route('/v1/recipe/<id>/image', methods=['POST'])
 @auth.login_required
+@statsd.timer('addImage')
 def add_image(id):
     try:
+        statsd.incr('cntraddImage')
         if 'file' not in request.files:
             status={'ERROR':'No File part'}
             return jsonify(status), 400
@@ -259,8 +279,10 @@ def add_image(id):
 
 @app.route('/v1/recipe/<recipeId>/image/<imageId>', methods=['DELETE'])
 @auth.login_required
+@statsd.timer('deleteImage')
 def delete_image(recipeId,imageId):
     try:
+        statsd.incr('cntrdeleteImage')
         recJson,status = get_recipy(cursor, recipeId)
         if status != 200:
             return jsonify(recJson),status
@@ -280,8 +302,10 @@ def delete_image(recipeId,imageId):
 
         
 @app.route('/v1/recipe/<recipeId>/image/<imageId>', methods=['GET'])
+@statsd.timer('getImage')
 def get_image(recipeId,imageId):
     try:
+        statsd.incr('cntrgetImage')
         resp,status=get_img(cursor,imageId,recipeId)
         return jsonify(resp),status
     except Exception as e:
