@@ -72,7 +72,7 @@ jobs:
           name: Testing
           command: |
             sudo pip install nose
-            sudo pip install coverage
+            cd webapp/test/
             nosetests --with-coverage
 
 
