@@ -68,6 +68,11 @@ jobs:
           command: |
             echo "Calling CodeDeploy Agent to pick the artifact and deploy on EC2 instance"
             aws deploy create-deployment --application-name "csye6225-webapp" --deployment-group-name "csye6225-webapp-deployment" --s3-location bucket=${CODE_DEPLOY_S3_BUCKET},bundleType=zip,key=recipe-webapp-${CIRCLE_BUILD_NUM}.zip
+      - run:
+          name: Unit Testing
+          command: |
+            echo "Perform Unit testing"
+            nosetests test/app_test.py
 
 
 
