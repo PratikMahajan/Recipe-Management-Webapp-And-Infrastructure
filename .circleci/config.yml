@@ -71,9 +71,8 @@ jobs:
       - run:
           name: Testing
           command: |
-            cd webapp/test/
             sudo pip install nose
-            nosetests app_test.py
+            nosetests test/app_test.py
 
 
 
