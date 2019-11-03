@@ -28,6 +28,8 @@ jobs:
             cp -r ../webapp/config .
             echo "Copying Models Folder"
             cp -r ../webapp/models .
+            echo "Copying test Folder"
+            cp -r ../webapp/test .
             echo "Copying app.py"
             cp ../webapp/app.py .
             echo "Copying gunicorn start script"
