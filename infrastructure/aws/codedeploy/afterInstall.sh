@@ -24,6 +24,10 @@ sudo systemctl daemon-reload >/dev/null 2>&1
 sudo systemctl start caddy >/dev/null 2>&1
 #sudo systemctl status caddy
 
+echo "Perform Unit Tests"
+pip3 install -r /home/centos/webapp/scripts/requirements.txt
+sudo chown -R centos:centos /home/centos/webapp/test/
+
 echo "fetching cloudwatch schema"
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/centos/webapp/scripts/amazon-cloudwatch-agent-schema.json -s
 
