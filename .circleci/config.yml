@@ -72,7 +72,8 @@ jobs:
           name: Testing
           command: |
             sudo pip install nose
-            nosetests 
+            sudo pip install coverage
+            nosetests --with-coverage
 
 
 
