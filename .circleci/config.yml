@@ -72,7 +72,7 @@ jobs:
           name: Testing
           command: |
             cd webapp/test/
-            pip3 install -r requirements.txt
+            sudo pip install nose
             nosetests app_test.py
 
 
