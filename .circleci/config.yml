@@ -68,12 +68,12 @@ jobs:
           command: |
             echo "Calling CodeDeploy Agent to pick the artifact and deploy on EC2 instance"
             aws deploy create-deployment --application-name "csye6225-webapp" --deployment-group-name "csye6225-webapp-deployment" --s3-location bucket=${CODE_DEPLOY_S3_BUCKET},bundleType=zip,key=recipe-webapp-${CIRCLE_BUILD_NUM}.zip
-     dependencies:
-             override:
-                     - pip install -r requirements.txt
-     test:
-             override:
-                     - nosetests test/app_test.py
+    dependencies:
+            override:
+                    - pip install -r requirements.txt
+    test:
+            override:
+                    - nosetests test/app_test.py
 
 
 
