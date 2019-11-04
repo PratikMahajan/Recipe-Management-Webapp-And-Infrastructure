@@ -78,7 +78,9 @@ jobs:
       - run:
           name: Testing
           command: |
-            sudo pip install nose
+            source venv/bin/activate
+            sudo pip install -r requirements.txt
+            make db-setup
             nosetests test/app_test.py
 
 
