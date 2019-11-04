@@ -15,7 +15,6 @@ jobs:
                 MYSQL_USER: user
                 MYSQL_PASSWORD: passw0rd
     steps:
-      - run: echo 'export PATH=/usr/lib/mysql/8.0.4/bin/:$PATH' >> $BASH_ENV
       - checkout
       - run:
           name: install dockerize
@@ -98,6 +97,11 @@ jobs:
           command: |
             cd webapp
             sudo pip install -r requirements.txt
+            export DB_HOST=localhost
+            export DB_PASSWORD=passw0rd
+            export DB_USER=user
+            export DB_ROOT_PASSWORD=root
+            export DATABASE_NAME=user
             nosetests test/app_test.py
             cd ..
 
