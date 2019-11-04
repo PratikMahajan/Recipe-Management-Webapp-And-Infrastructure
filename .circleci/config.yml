@@ -6,9 +6,9 @@ jobs:
       - image: circleci/mysql:8.0.4
         environment:
                 DB_HOST: localhost
-                DB_PASSWORD: abc@123
-                DB_USER: root
-                DB_ROOT_PASSWORD: 
+                DB_PASSWORD: user
+                DB_USER: user
+                DB_ROOT_PASSWORD: root 
                 DATABASE_NAME: user_list
     steps:
       - checkout
@@ -82,6 +82,7 @@ jobs:
           command: |
             cd webapp
             sudo pip install -r requirements.txt
+            echo $DB_ROOT_PASSWORD
             sudo bash deploy/dbsetup.sh
             sudo bash deploy/dbinit.sh
             nosetests test/app_test.py
