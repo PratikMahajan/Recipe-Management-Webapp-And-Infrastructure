@@ -97,7 +97,9 @@ jobs:
           name: Testing
           command: |
             cd webapp
+            sudo pip install -r requirements.txt
             nosetests test/app_test.py
+            cd ..
 
 
 
