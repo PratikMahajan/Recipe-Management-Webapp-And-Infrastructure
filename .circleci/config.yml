@@ -81,7 +81,7 @@ jobs:
             pip install virtualenv
             python -m virtualenv venv
             source venv/bin/activate
-            sudo pip install -r requirements.txt
+            sudo pip install nose
             make db-setup
             nosetests test/app_test.py
 
