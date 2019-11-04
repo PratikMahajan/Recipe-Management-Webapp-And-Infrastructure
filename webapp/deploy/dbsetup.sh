@@ -34,8 +34,6 @@ EOF
 
 fi
 
-sudo service mariadb enable
-sudo service mariadb start
+sudo systemctl enable mariadb
+sudo systemctl start mariadb
 
-mysql_secure_installation
-#systemctl status mariadb
