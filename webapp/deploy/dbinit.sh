@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Changing ROOT password"
-mysql -uroot -e "use mysql; SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${DB_ROOT_PASSWORD}'); flush privileges;"
+mysql -uroot -e "use mysql; SET PASSWORD FOR 'root'@'127.0.0.1' = PASSWORD('${DB_ROOT_PASSWORD}'); flush privileges;"
 
 echo "Adding Database"
 mysql -uroot --password=${DB_ROOT_PASSWORD} -e "CREATE DATABASE ${DATABASE_NAME};"
@@ -12,7 +12,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Creating User"
-mysql -uroot -p${DB_ROOT_PASSWORD} -e "CREATE USER '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
+mysql -uroot -p${DB_ROOT_PASSWORD} -e "CREATE USER '${DB_USER}'@'127.0.0.1' IDENTIFIED BY '${DB_PASSWORD}';"
 
 if [ $? -ne 0 ]; then
     echo "unsuccessful"
@@ -20,7 +20,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Granting ALL privileges on ${DATABASE_NAME} to ${DB_USER}!"
-mysql -uroot -p${DB_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON ${DATABASE_NAME}.* TO '${DB_USER}'@'localhost';"
+mysql -uroot -p${DB_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON ${DATABASE_NAME}.* TO '${DB_USER}'@'127.0.0.1';"
 mysql -uroot -p${DB_ROOT_PASSWORD} -e "FLUSH PRIVILEGES;"
 
 if [ $? -ne 0 ]; then
