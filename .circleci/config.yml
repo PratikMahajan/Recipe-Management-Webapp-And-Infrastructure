@@ -3,6 +3,14 @@ jobs:
   build:
     docker:
       - image: circleci/python:3.8-rc
+      - image: circleci/mysql:8.0.4
+        environment:
+                DB_HOST: localhost
+                DB_PASSWORD: abc@123
+                DB_USER: localhost
+                DB_ROOT_PASSWORD: abc@123
+                DATABASE_NAME: user_list
+
     steps:
       - checkout
       - run:
@@ -28,6 +36,8 @@ jobs:
             cp -r ../webapp/config .
             echo "Copying Models Folder"
             cp -r ../webapp/models .
+            echo "Copying deploy folder"
+            cp -r ../webapp/deploy .
             echo "Copying test Folder"
             cp -r ../webapp/test .
             echo "Copying app.py"
@@ -73,6 +83,8 @@ jobs:
           command: |
             cd webapp      
             sudo pip install -r requirements.txt
+            make db-setup
+            ./deploy/dbinit.sh
             nosetests test/app_test.py
             cd ..
 
