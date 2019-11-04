@@ -94,6 +94,7 @@ jobs:
           name: Testing
           command: |
             cd webapp
+            sudo rm /etc/mysql/my.cnf
             sudo bash deploy/dbinit.sh
             pip install virtualenv
             nosetests test/app_test.py
