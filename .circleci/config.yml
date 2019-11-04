@@ -3,7 +3,6 @@ jobs:
   build:
     docker:
       - image: circleci/python:3.8-rc
-      - image: circleci/mysql:8.0.4-ram
         environment:
                 DB_HOST: localhost
                 DB_PASSWORD: user
@@ -12,17 +11,6 @@ jobs:
                 DATABASE_NAME: userlist
     steps:
       - checkout
-      - run:
-          name: install dockerize
-          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-          environment:
-            DOCKERIZE_VERSION: v0.3.0
-      - run:
-          name: Wait for db
-          command: dockerize -wait tcp://localhost:3306 -timeout 1m
-      - run:
-          name: Install MYSQL CLI
-          command: sudo apt-get install default-mysql-client
       - run:
           name    : Install packages
           command : |
@@ -94,7 +82,9 @@ jobs:
             cd webapp
             sudo pip install -r requirements.txt
             echo $DB_ROOT_PASSWORD
+            sudo bash deploy/dbsetup.sh
             sudo bash deploy/dbinit.sh
+            mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SHOW DATABASES"
             nosetests test/app_test.py
 
 
