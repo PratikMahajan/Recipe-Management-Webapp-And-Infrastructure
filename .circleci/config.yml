@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/python:3.8-rc
-      - image: circleci/mysql:8.0.4
+      - image: circleci/mysql:8.0.4-ram
         environment:
                 DB_HOST: localhost
                 DB_PASSWORD: user
@@ -20,6 +20,9 @@ jobs:
       - run:
           name: Wait for db
           command: dockerize -wait tcp://localhost:3306 -timeout 1m
+      - run:
+          name: Install MYSQL CLI
+          command: sudo apt-get install default-mysql-client
       - run:
           name    : Install packages
           command : |
