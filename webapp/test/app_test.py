@@ -1,4 +1,4 @@
-from webapp.app import app
+from app import app
 import unittest
 import base64
 import json
