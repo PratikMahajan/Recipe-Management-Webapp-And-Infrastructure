@@ -3,6 +3,13 @@ jobs:
   build:
     docker:
       - image: circleci/python:3.8-rc
+      - image: circleci/mysql:8.0.4
+        environment:
+                DB_HOST: localhost
+                DB_PASSWORD: abc@123
+                DB_USER: localhost
+                DB_ROOT_PASSWORD: abc@123
+                DATABASE_NAME: user_list
     steps:
       - checkout
       - run:
@@ -71,8 +78,11 @@ jobs:
       - run:
           name: Testing
           command: |
-            pwd      
+            pip install virtualenv
+            python -m virtualenv venv
+            source venv/bin/activate
             sudo pip install nose
+            make db-setup
             nosetests test/app_test.py
 
 
