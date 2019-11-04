@@ -83,7 +83,6 @@ jobs:
             cd webapp
             sudo pip install -r requirements.txt
             echo $DB_ROOT_PASSWORD
-            sudo bash deploy/dbsetup.sh
             sudo bash deploy/dbinit.sh
             nosetests test/app_test.py
 
