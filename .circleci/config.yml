@@ -7,10 +7,9 @@ jobs:
         environment:
                 DB_HOST: localhost
                 DB_PASSWORD: abc@123
-                DB_USER: localhost
-                DB_ROOT_PASSWORD: abc@123
+                DB_USER: root
+                DB_ROOT_PASSWORD: 
                 DATABASE_NAME: user_list
-
     steps:
       - checkout
       - run:
@@ -36,7 +35,7 @@ jobs:
             cp -r ../webapp/config .
             echo "Copying Models Folder"
             cp -r ../webapp/models .
-            echo "Copying deploy folder"
+            echo "Copying deploy Folder"
             cp -r ../webapp/deploy .
             echo "Copying test Folder"
             cp -r ../webapp/test .
@@ -81,12 +80,11 @@ jobs:
       - run:
           name: Testing
           command: |
-            cd webapp      
+            cd webapp
             sudo pip install -r requirements.txt
             sudo bash deploy/dbsetup.sh
             sudo bash deploy/dbinit.sh
             nosetests test/app_test.py
-            cd ..
 
 
 
