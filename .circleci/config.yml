@@ -29,7 +29,7 @@ jobs:
           name: Install MySQL CLI; Import dummy data; run an example query
           command: |
             sudo apt-get install default-mysql-client
-
+            mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SHOW DATABASES"
       - run:
           name    : Install packages
           command : |
@@ -97,7 +97,6 @@ jobs:
           name: Testing
           command: |
             cd webapp
-            sudo bash deploy/dbinit.sh
             nosetests test/app_test.py
 
 
