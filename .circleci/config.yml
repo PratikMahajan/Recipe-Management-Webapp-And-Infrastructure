@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/python:3.8-rc
-      - image: circleci/mysql:8.0.4-ram
+      - image: circleci/mysql:8.0.4
         environment:
                 DB_HOST: localhost
                 DB_PASSWORD: user
@@ -23,7 +23,7 @@ jobs:
       - run:
           name: Install MYSQL CLI
           command: |
-            sudo apt-get install default-mysql-client
+            sudo yum install mysql
             mysql -h 127.0.0.1 -u user -puser --execute="SHOW DATABASES" 
       - run:
           name    : Install packages
