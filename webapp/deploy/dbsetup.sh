@@ -34,6 +34,7 @@ EOF
 
 fi
 
+sudo apt-get install --reinstall systemd
 sudo systemctl enable mariadb
 sudo systemctl start mariadb
 
