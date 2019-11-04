@@ -3,14 +3,31 @@ jobs:
   build:
     docker:
       - image: circleci/python:3.8-rc
+      - image: circleci/mysql:8.0.4
         environment:
                 DB_HOST: localhost
-                DB_PASSWORD: user
+                DB_PASSWORD: passw0rd
                 DB_USER: user
-                DB_ROOT_PASSWORD: root 
-                DATABASE_NAME: userlist
+                DB_ROOT_PASSWORD: root
+                DATABASE_NAME: user
     steps:
       - checkout
+      - run:
+      # Our primary container isn't MYSQL so run a sleep command until it's ready.
+          name: Waiting for MySQL to be ready
+          command: |
+            for i in `seq 1 10`;
+            do
+              nc -z 127.0.0.1 3306 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for MySQL && exit 1
+      - run:
+          name: Install MySQL CLI; Import dummy data; run an example query
+          command: |
+            sudo apt-get install default-mysql-client
+            mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SHOW DATABASES"
       - run:
           name    : Install packages
           command : |
@@ -34,8 +51,6 @@ jobs:
             cp -r ../webapp/config .
             echo "Copying Models Folder"
             cp -r ../webapp/models .
-            echo "Copying deploy Folder"
-            cp -r ../webapp/deploy .
             echo "Copying test Folder"
             cp -r ../webapp/test .
             echo "Copying app.py"
@@ -79,12 +94,11 @@ jobs:
       - run:
           name: Testing
           command: |
-            cd webapp
-            sudo pip install -r requirements.txt
-            echo $DB_ROOT_PASSWORD
-            sudo bash deploy/dbsetup.sh
-            sudo bash deploy/dbinit.sh
-            mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SHOW DATABASES"
+            pip install virtualenv
+            python -m virtualenv venv
+            source venv/bin/activate
+            sudo pip install nose
+            make db-setup
             nosetests test/app_test.py
 
 
