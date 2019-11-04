@@ -84,7 +84,7 @@ jobs:
             cd webapp      
             sudo pip install -r requirements.txt
             make db-setup
-            ./deploy/dbinit.sh
+            sudo bash deploy/dbinit.sh
             nosetests test/app_test.py
             cd ..
 
