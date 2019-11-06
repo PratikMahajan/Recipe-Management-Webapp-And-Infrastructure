@@ -36,8 +36,8 @@ app = Flask(__name__)
 
 #gunicorn_error_handlers = logging.getLogger('gunicorn.error').handlers
 #app.logger.handlers.extend(gunicorn_error_handlers )
-##gunicorn_error_logger = logging.getLogger('gunicorn.error')
-##app.logger.handlers.extend(gunicorn_error_logger.handlers)
+#gunicorn_error_logger = logging.getLogger('gunicorn.error')
+#app.logger.handlers.extend(gunicorn_error_logger.handlers)
 #app.logger.setLevel(logging.INFO)
 #logger.debug('this will show in the log')
 
