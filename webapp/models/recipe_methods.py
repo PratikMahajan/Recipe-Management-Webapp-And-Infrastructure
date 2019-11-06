@@ -18,7 +18,7 @@ def round_to_5(number):
         raise ValueError('Incorrect Time Format')
 
 
-def insert_recipe(cursor, recipeJson, authorID, recipeID = None, createdTime = None):
+def insert_recipe(cursor, recipeJson, authorID,statsd,recipeID = None, createdTime = None):
     try:
         id = str(uuid.uuid4())
         if recipeID:
@@ -64,7 +64,8 @@ def insert_recipe(cursor, recipeJson, authorID, recipeID = None, createdTime = N
         ingredientset = set(recipeJson["ingredients"])
         for ingred in ingredientset:
             newIngred = Ingredients(recipe_id=recipe_id, ingredient=ingred)
-            cursor.add(newIngred)
+            with statsd.timer('DB_Ingredient_W'):
+                cursor.add(newIngred)
 
         steps = recipeJson["steps"]
         for step in steps:
@@ -73,11 +74,14 @@ def insert_recipe(cursor, recipeJson, authorID, recipeID = None, createdTime = N
             if position < 1:
                 raise ValueError('Error in Positions')
             insertStep = Steps(recipe_id=recipe_id, position=position, items=items)
-            cursor.add(insertStep)
+            with statsd.timer('DB_Steps_W'):
+                cursor.add(insertStep)
 
 
-        cursor.add(recipe)
-        cursor.add(nutritioninformation)
+        with statsd.timer('DB_Recipe_W'):
+            cursor.add(recipe)
+        with statsd.timer('DB_Nutritioninformation_W'):
+            cursor.add(nutritioninformation)
 
         recipeJson["id"]=id
         recipeJson["created_ts"]=created_ts
@@ -92,11 +96,12 @@ def insert_recipe(cursor, recipeJson, authorID, recipeID = None, createdTime = N
         raise Exception(str(e))
 
 
-def get_recipy(cursor, recipe_id):
+def get_recipy(cursor, recipe_id,statsd):
     try:
         responseDict = {}
-
-        recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
+        recipe=None
+        with statsd.timer('DB_Recipe_R'):
+            recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
             status = {'ERROR':'No Such Recipe'}
             return status, 404
@@ -111,8 +116,9 @@ def get_recipy(cursor, recipe_id):
         responseDict["author_id"] = recipe.author_id
         responseDict["created_ts"] = recipe.created_ts
         responseDict["updated_ts"] = recipe.updated_ts
-
-        nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()
+        nutritioninformation=None
+        with statsd.timer('DB_Nutritioninformation_R'):
+            nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()
         nutriDict = {}
         nutriDict["calories"] = nutritioninformation.calories
         nutriDict["cholesterol_in_mg"] = float(nutritioninformation.cholesterol_in_mg)
@@ -121,15 +127,17 @@ def get_recipy(cursor, recipe_id):
         nutriDict["protein_in_grams"] = float(nutritioninformation.protein_in_grams)
 
         responseDict["nutrition_information"] = nutriDict
-
-        ingredients = cursor.query(Ingredients).filter_by(recipe_id=recipe_id).all()
+        ingredients=None
+        with statsd.timer('DB_Ingredient_R'):
+            ingredients = cursor.query(Ingredients).filter_by(recipe_id=recipe_id).all()
         ingridList = []
         for ingrid in ingredients:
             ingridList.append(ingrid.ingredient)
 
         responseDict["ingredients"] = ingridList
-
-        steps = cursor.query(Steps).filter_by(recipe_id=recipe_id).all()
+        steps=None
+        with statsd.timer('DB_Steps_R'):
+            steps = cursor.query(Steps).filter_by(recipe_id=recipe_id).all()
         stepList= []
         for step in steps:
             stepdict = {}
@@ -145,7 +153,7 @@ def get_recipy(cursor, recipe_id):
         raise Exception(str(e))
 
 
-def delete_recipy(cursor, recipe_id, authId):
+def delete_recipy(cursor, recipe_id, authId,statsd):
     try:
         recipe = cursor.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
@@ -155,18 +163,22 @@ def delete_recipy(cursor, recipe_id, authId):
             if recipe.author_id!=authId:
                status = {'ERROR':'UnAuthorized'}
                return status, 401
-        cursor.delete(recipe)
+        with statsd.timer('DB_Recipe_D'):
+            cursor.delete(recipe)
 
         nutritioninformation = cursor.query(NutritionInformation).filter_by(recipe_id=recipe_id).first()
-        cursor.delete(nutritioninformation)
+        with statsd.timer('DB_Nutritioninformation_D'):
+            cursor.delete(nutritioninformation)
 
         ingredients = cursor.query(Ingredients).filter_by(recipe_id=recipe_id).all()
         for ingrid in ingredients:
-            cursor.delete(ingrid)
+            with statsd.timer('DB_Ingredient_D'):
+                cursor.delete(ingrid)
 
         steps = cursor.query(Steps).filter_by(recipe_id=recipe_id).all()
         for step in steps:
-            cursor.delete(step)
+            with statsd.timer('DB_Steps_D'):
+                cursor.delete(step)
         cursor.commit()
         return {},204 
         #return True
@@ -176,7 +188,7 @@ def delete_recipy(cursor, recipe_id, authId):
         logger.debug("Exception in deleting recipe: " + str(e))
         raise Exception(str(e))
 
-def delete_img(cursor,imgId,rId):
+def delete_img(cursor,imgId,rId,statsd):
     try:
         img = cursor.query(Image).filter_by(id=imgId).first()
         if not img:
@@ -186,19 +198,21 @@ def delete_img(cursor,imgId,rId):
             if img.recipe_id!=rId:
                 status = {'ERROR':'No such image for the given recipe'}
                 return status, 404
-        cursor.delete(img)
+        with statsd.timer('DB_Image_D'):
+            cursor.delete(img)
         cursor.commit()
         return {},204 
     except Exception as e:
         logger.debug("Exception in deleting image: " + str(e))
         raise Exception(str(e))
 
-def delete_img_recipe(cursor,rId):
+def delete_img_recipe(cursor,rId,statsd):
     try:
         imgs = cursor.query(Image).filter_by(recipe_id=rId).all()
         imgIds=[]
         for img in imgs:
-            cursor.delete(img)
+            with statsd.timer('DB_Image_D'):
+                cursor.delete(img)
             imgIds.append(img.id)
             cursor.commit()
         return imgIds
@@ -207,14 +221,16 @@ def delete_img_recipe(cursor,rId):
         logger.debug("Exception in deleting image via recipe: " + str(e))
         raise Exception(str(e))
 
-def get_img(cursor,imgId,rId):
+def get_img(cursor,imgId,rId,statsd):
     try:
         responseDict = {}
         recipe = cursor.query(Recipe).filter_by(id=rId).first()
         if not recipe:
             status = {'ERROR':'No Such Recipe'}
             return status, 404
-        img = cursor.query(Image).filter_by(id=imgId).first()
+        img=None
+        with statsd.timer('DB_Image_R'):
+            img = cursor.query(Image).filter_by(id=imgId).first()
         if not img:
             status = {'ERROR':'No Such Recipe Image'}
             return status, 404

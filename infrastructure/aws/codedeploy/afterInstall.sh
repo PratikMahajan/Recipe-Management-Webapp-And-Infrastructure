@@ -4,7 +4,7 @@
 sudo chown -R centos:centos /home/centos/webapp/
 pip3 install -r /home/centos/webapp/scripts/requirements.txt --user 2>&1
 
-dir_name=/home/centos/logs
+dir_name=/home/centos/webapp/logs
 if [ -d "$dir_name" ]; then
     echo "Removing $dir_name"
     rm -rf "$dir_name"
@@ -16,6 +16,7 @@ sudo chown -R centos:centos /home/centos/logs/
 sudo mv /home/centos/webapp/gunicorn.service /etc/systemd/system/
 sudo systemctl daemon-reload >/dev/null 2>&1
 sudo systemctl start gunicorn >/dev/null 2>&1
+sudo systemctl start amazon-cloudwatch-agent >/dev/null 2>&1
 #sudo systemctl status gunicorn
 
 sudo cp /home/centos/webapp/Caddyfile /etc/caddy/

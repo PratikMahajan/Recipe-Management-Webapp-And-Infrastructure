@@ -25,7 +25,7 @@ jobs:
           name: Waiting for MySQL to be ready
           command: dockerize -wait tcp://localhost:3306 -timeout 1m
       - run:
-          name: Install MySQL CLI;
+          name: Install MySQL CLI; Import dummy data; run an example query
           command: |
             sudo apt-get install default-mysql-client
             mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SHOW DATABASES"
@@ -52,7 +52,7 @@ jobs:
             cp -r ../webapp/config .
             echo "Copying Models Folder"
             cp -r ../webapp/models .
-            echo "Copying test Folder"
+            echo "Copying Test Folder"
             cp -r ../webapp/test .
             echo "Copying app.py"
             cp ../webapp/app.py .
@@ -96,6 +96,8 @@ jobs:
           name: Testing
           command: |
             cd webapp
+            mkdir ../logs
+            touch ../logs/gunicorn.log
             sudo pip install -r requirements.txt
             export DB_HOST=localhost
             echo $DB_HOST
@@ -108,7 +110,6 @@ jobs:
             export AWS_REGION=${AWS_REGION}
             export RECIPE_S3=${RECIPE_S3}
             nosetests test/app_test.py
-            nosetests test/app_test2.py
             cd ..
 
 
