@@ -200,7 +200,7 @@ def get_recipe(id):
         statsd.incr('getRecipe')
         with statsd.timer('getRecipe'):
             resp,status=get_recipy(cursor,id,statsd)
-            logger.debug("Response while getting recipe /v1/recipe/<id>: " + str(resp)+" Code: "+status)
+            logger.debug("Response while getting recipe /v1/recipe/<id>: " + str(resp)+" Code: "+str(status))
             return jsonify(resp),status
     except Exception as e:
         status = {'ERROR': str(e)}
@@ -215,7 +215,7 @@ def delete_recipe(id):
         statsd.incr('deleteRecipe')
         with statsd.timer('deleteRecipe'):
             resp,status=delete_recipy(cursor, id,g.user.id,statsd)
-            logger.debug("Response while deleting recipe /v1/recipe/{id}: " + str(resp)+" Code: "+status)
+            logger.debug("Response while deleting recipe /v1/recipe/{id}: " + str(resp)+" Code: "+str(status))
             return jsonify(resp),status
 
     except Exception as e:
@@ -240,10 +240,10 @@ def update_recipe(id):
             if stat==204:
                 retJson = insert_recipe(cursor,request.json,g.user.id,statsd, recpID, createdTime)
                 cursor.commit()
-                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(retJson)+" Code: "+stat)
+                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(retJson)+" Code: "+str(stat))
                 return Response(json.dumps(retJson), status=204, mimetype='application/json')
             else:
-                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(resp)+" Code: "+stat)
+                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(resp)+" Code: "+str(stat))
                 return jsonify(resp),stat
 
     except Exception as e:
@@ -306,7 +306,7 @@ def delete_image(recipeId,imageId):
         with statsd.timer('deleteImage'):
             recJson,status = get_recipy(cursor, recipeId,statsd)
             if status != 200:
-                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(recJson)+" Code: "+status)
+                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(recJson)+" Code: "+str(status))
                 return jsonify(recJson),status
             if recJson["author_id"]!=g.user.id:
                status = {'ERROR':'UnAuthorized'}
@@ -314,12 +314,12 @@ def delete_image(recipeId,imageId):
                return jsonify(status), 401
             resp, status = delete_img(cursor,imageId,recipeId,statsd)
             if status != 204:
-                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(resp)+" Code: "+status)
+                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(resp)+" Code: "+str(status))
                 return jsonify(resp),status
             s3Bucketname="S3_"+aws_config["RECIPE_S3"]
             with statsd.timer(s3Bucketname):
                 s3_resource.Bucket(aws_config["RECIPE_S3"]).delete_objects(Delete={'Objects':[{'Key':imageId}]})
-            logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(resp)+" Code: "+status)
+            logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(resp)+" Code: "+str(status))
             return jsonify(resp),status
 
     except Exception as e:
@@ -334,7 +334,7 @@ def get_image(recipeId,imageId):
         statsd.incr('getImage')
         with statsd.timer('getImage'):
              resp,status=get_img(cursor,imageId,recipeId,statsd)
-             logger.debug("Response while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(resp)+" Code: "+status)
+             logger.debug("Response while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(resp)+" Code: "+str(status))
              return jsonify(resp),status
     except Exception as e:
         status = {'ERROR': str(e)}
