@@ -345,9 +345,11 @@ def get_image(recipeId,imageId):
 @app.route('/health', methods=['GET', 'POST'])
 @disable_logging
 def health_probe() -> Response:
-    status = dict()
-    status["ok"] = True
-    return Response(json.dumps(status), status=200, mimetype='application/json')
+    statsd.incr('health')
+    with statsd.timer('health'):
+        status = dict()
+        status["ok"] = True
+        return Response(json.dumps(status), status=200, mimetype='application/json')
 
 
 if __name__ == '__main__':
