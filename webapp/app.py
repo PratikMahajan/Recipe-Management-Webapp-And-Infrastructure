@@ -133,7 +133,7 @@ def get_user():
     try:
         statsd.incr('getUser')
         with statsd.timer('getUser'):
-             logger.debug("Response get_user() /v1/user/self/: " + str(jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
+            logger.debug("Response get_user() /v1/user/self/: " + str(jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
                         'email_address': g.user.email_address, 'account_created': g.user.account_created,
                         'account_updated': g.user.account_updated}))+" Code: "+str(200))
             return jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
