@@ -6,6 +6,14 @@
      destination: /home/centos/webapp
 
  hooks:
+    ApplicationStop:
+    - location: ./scripts/applicationStop.sh
+      timeout: 180
+      runas: centos
+    BeforeInstall:
+    - location: ./scripts/beforeInstall.sh
+      timeout: 180
+      runas: centos
     AfterInstall:
     - location: ./scripts/afterInstall.sh
       timeout: 180
