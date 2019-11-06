@@ -114,6 +114,9 @@ def new_user():
             user.bcrypt_salt_hash(password)
             cursor.add(user)
             cursor.commit()
+            logger.debug("Response /v1/user: " + str(jsonify({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,
+                        'email_address': user.email_address, 'account_created': user.account_created,
+                        'account_updated': user.account_updated}))+" Code: "+str(201))
             return jsonify({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,
                         'email_address': user.email_address, 'account_created': user.account_created,
                         'account_updated': user.account_updated}), 201
@@ -131,6 +134,9 @@ def get_user():
     try:
         statsd.incr('getUser')
         with statsd.timer('getUser'):
+             logger.debug("Response get_user() /v1/user/self/: " + str(jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
+                        'email_address': g.user.email_address, 'account_created': g.user.account_created,
+                        'account_updated': g.user.account_updated}))+" Code: "+str(200))
             return jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
                         'email_address': g.user.email_address, 'account_created': g.user.account_created,
                         'account_updated': g.user.account_updated}), 200
@@ -157,10 +163,12 @@ def update_user():
                 if request.json.get('password') is not None:
                     if not check_password(request.json.get('password')):
                         status = {'ERROR': 'Insecure Password'}
+                        logger.debug("Response updating user update_user() /v1/user/self/: "+str(jsonify(status))+" Code : 400")
                         return Response(json.dumps(status), status=400, mimetype='application/json')
                     g.user.bcrypt_salt_hash(request.json.get('password'))
                 g.user.account_updated = str(datetime.now())
                 cursor.commit()
+                logger.debug("Response updating user update_user() /v1/user/self/: 204")
                 return Response(status=204, mimetype='application/json')
     except Exception as e:
         cursor.rollback()
