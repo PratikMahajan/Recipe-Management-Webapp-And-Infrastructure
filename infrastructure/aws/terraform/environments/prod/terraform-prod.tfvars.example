@@ -1,5 +1,9 @@
 env = "foo"
 
+# Configuration for AWS
+aws_access_key_id       = "foo"
+aws_secret_access_key   = "foo"
+
 # Variables for VPC creation
 aws_region = "foo"
 subnet1_az = "foo"
@@ -15,7 +19,10 @@ vpc_cidr = "foo"
 vpc_name = "foo"
 
 # Variables for Database
-s3_bucket_name = foo
+s3_bucket_name_webapp = foo
+
+# Variables for aws Key pair
+ssh_public_key = "foo"
 
 # Variables for RDS database instance
 db_identifier           = "foo"
@@ -43,3 +50,22 @@ ec2_instance_name           = "foo"
 # Variables for DynamoDB
 dynamo_billing_mode   = "foo"
 dynamo_table_name     = "foo"
+
+
+# variables for circleci-codedeploy policy
+application_name = "foo"
+
+# Variables for codedeploy s3
+s3_bucket_name_codedeploy = "foo"
+
+# Variable for EC2 codedeploy instance
+ec2_instance_name_codedeploy  = "foo"
+
+# variables for codedeploy app
+cd_app_name             = "foo"
+cd_compute_platform     = "foo"
+
+# Variables for codedeploy group
+cd_deployment_type                  = "foo"
+codedeploy_deployment_group_name    = "foo"
+deployment_config_service           = "foo"

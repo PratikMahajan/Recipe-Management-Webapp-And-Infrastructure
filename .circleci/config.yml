@@ -2,7 +2,112 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/python:3.8-rc
+      - image: circleci/mariadb:5.5.64
+        environment:
+                DB_HOST: localhost
+                DB_PASSWORD: passw0rd
+                DB_USER: user
+                DB_ROOT_PASSWORD: root
+                DATABASE_NAME: user
+                MYSQL_ROOT_PASSWORD: root
+                MYSQL_DATABASE: user
+                MYSQL_USER: user
+                MYSQL_PASSWORD: passw0rd
     steps:
       - checkout
-      
+      - run:
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+      - run:
+          name: Waiting for MySQL to be ready
+          command: dockerize -wait tcp://localhost:3306 -timeout 1m
+      - run:
+          name: Install MySQL CLI; Import dummy data; run an example query
+          command: |
+            sudo apt-get install default-mysql-client
+            mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SHOW DATABASES"
+      - run:
+          name    : Install packages
+          command : |
+            sudo apt-get update && sudo apt-get install wget zip unzip python-pip python-dev build-essential -y
+            python --version
+      - run:
+          name    : Install awscli
+          command : sudo pip install awscli
+      - run:
+          name: Testing
+          command: |
+            cd webapp
+            mkdir ../logs
+            touch ../logs/gunicorn.log
+            sudo pip install -r requirements.txt
+            export DB_HOST=localhost
+            echo $DB_HOST
+            export DB_PASSWORD=passw0rd
+            export DB_USER=user
+            export DB_ROOT_PASSWORD=root
+            export DATABASE_NAME=user
+            export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+            export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+            export AWS_REGION=${AWS_REGION}
+            export RECIPE_S3=${RECIPE_S3}
+            nosetests test/app_test.py
+            cd ..
+      - run:
+          name    : Zip Artifact
+          command : |
+            echo "Hello the current build number is ${CIRCLE_BUILD_NUM}"
+            pwd
+            echo "Listing current directory content"
+            ls -al
+            echo "Making the codedeploy_artifact directory"
+            mkdir -p codedeploy_artifact
+            echo "Changing directory to codedeploy_artifact"
+            cd codedeploy_artifact
+            echo "Copying config folder"
+            cp -r ../webapp/config .
+            echo "Copying Models Folder"
+            cp -r ../webapp/models .
+            echo "Copying Test Folder"
+            cp -r ../webapp/test .
+            echo "Copying app.py"
+            cp ../webapp/app.py .
+            echo "Copying gunicorn start script"
+            cp ../webapp/gunicornstart.sh .
+            echo "Copying Make Script"
+            cp ../webapp/Makefile .
+            echo "Copying Install Scripts"
+            cp -r ../infrastructure/aws/codedeploy/ ./scripts
+            echo "Copying requirements"
+            cp ../webapp/requirements.txt ./scripts/
+            echo "Copying codedeploy appspec"
+            cp ../appspec.yml .
+            echo "Copying gunicorn service"
+            cp ../webapp/service_files/gunicorn.service .
+            echo "copying caddyfile"
+            cp ../webapp/Caddyfile .
+            echo "Copying caddy service"
+            cp ../webapp/service_files/caddy.service .
+            echo "Zipping all files in the codedeploy_artifact directory"
+            zip -r recipe-webapp-${CIRCLE_BUILD_NUM}.zip .
+            ls -al
+            pwd
+            echo "Changing directory to root"
+            cd ..
+            pwd
+            ls -al
+      - run:
+          name: Upload Artifact to S3
+          command: |
+            echo "Uploading Artifact to S3 bucket ${CODE_DEPLOY_S3_BUCKET}"
+            cd codedeploy_artifact
+            aws s3 cp recipe-webapp-${CIRCLE_BUILD_NUM}.zip s3://${CODE_DEPLOY_S3_BUCKET}
+            cd ..
+      - run:
+          name: Make CodeDeploy API call
+          command: |
+            echo "Calling CodeDeploy Agent to pick the artifact and deploy on EC2 instance"
+            aws deploy create-deployment --application-name "csye6225-webapp" --deployment-group-name "csye6225-webapp-deployment" --s3-location bucket=${CODE_DEPLOY_S3_BUCKET},bundleType=zip,key=recipe-webapp-${CIRCLE_BUILD_NUM}.zip

@@ -1,12 +1,43 @@
 #!/bin/bash
 
-sudo systemctl stop tomcat.service
 
-sudo rm -rf /opt/tomcat/webapps/docs  /opt/tomcat/webapps/examples /opt/tomcat/webapps/host-manager  /opt/tomcat/webapps/manager /opt/tomcat/webapps/ROOT
+sudo chown -R centos:centos /home/centos/webapp/
+pip3 install -r /home/centos/webapp/scripts/requirements.txt --user 2>&1
 
-sudo chown tomcat:tomcat /opt/tomcat/webapps/ROOT.war
+dir_name=/home/centos/webapp/logs
+if [ -d "$dir_name" ]; then
+    echo "Removing $dir_name"
+    rm -rf "$dir_name"
+fi
+sudo mkdir -p /home/centos/logs
+sudo touch /home/centos/logs/gunicorn.log
+sudo chown -R centos:centos /home/centos/logs/
 
-# cleanup log files
-sudo rm -rf /opt/tomcat/logs/catalina*
-sudo rm -rf /opt/tomcat/logs/*.log
-sudo rm -rf /opt/tomcat/logs/*.txt
+sudo mv /home/centos/webapp/gunicorn.service /etc/systemd/system/
+sudo systemctl daemon-reload >/dev/null 2>&1
+sudo systemctl start gunicorn >/dev/null 2>&1
+sudo systemctl start amazon-cloudwatch-agent >/dev/null 2>&1
+#sudo systemctl status gunicorn
+
+sudo cp /home/centos/webapp/Caddyfile /etc/caddy/
+sudo mv /home/centos/webapp/caddy.service /etc/systemd/system/
+sudo systemctl daemon-reload >/dev/null 2>&1
+sudo systemctl start caddy >/dev/null 2>&1
+#sudo systemctl status caddy
+
+echo "fetching cloudwatch schema"
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/centos/webapp/scripts/amazon-cloudwatch-agent-schema.json -s
+
+echo "---------After Install Script Execution Completed------------"
+exit 0
+
+#read -d '' data <<EOF
+#DB_USER=$DB_USER
+#DB_PASSWORD=$DB_PASSWORD
+#DATABASE_NAME=$DATABASE_NAME
+#DB_HOST=$DB_HOST
+#EOF
+#
+#sudo echo "$data" >> /etc/environment
+#
+#source /etc/environment

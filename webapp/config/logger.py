@@ -20,7 +20,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 # Add logs to file
-logFile = "app.log"
+logFile = "../logs/gunicorn.log"
 fmt = '%(asctime)s-%(filename)s[line:%(lineno)d]-%(name)s-%(levelname)s: %(message)s'
 logFormatter = logging.Formatter(fmt, datefmt="%m/%d/%Y %I:%M:%S %p %Z")
 
