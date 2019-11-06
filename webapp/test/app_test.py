@@ -44,7 +44,7 @@ class TestLogin(unittest.TestCase):
                                  data=datajson,
                                  content_type='application/json',
                                  headers={'Authorization': 'Basic ' + self.invalid_password})
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 401)
 
 #    def test_user_can_update_with_valid_field(self):
 #        datajson=json.dumps({"first_name": "Aakawwwwwwsh","last_name": "Jagtap","password": "P@ssword11"})
