@@ -52,10 +52,10 @@ class TestLogin(unittest.TestCase):
             '/v1/recipe/f5e02bd4-55da-4243-b7fb-980b230a1138')
         self.assertEqual(response.status_code, 404)
 
-    def test_user_recipe_delete(self):
-        response = self.app.delete(
-            '/v1/recipe/f5e02bd4-55da-4243-b7fb-980b230a1138', headers={'Authorization': 'Basic ' + self.valid_credentials})
-        self.assertEqual(response.status_code, 403)
+#    def test_user_recipe_delete(self):
+#        response = self.app.delete(
+#            '/v1/recipe/f5e02bd4-55da-4243-b7fb-980b230a1138', headers={'Authorization': 'Basic ' + self.valid_credentials})
+#        self.assertEqual(response.status_code, 403)
 
 
 
