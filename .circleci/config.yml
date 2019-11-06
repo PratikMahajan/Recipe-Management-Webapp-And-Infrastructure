@@ -5,10 +5,14 @@ jobs:
       - image: circleci/python:3.8-rc
       - image: circleci/mariadb:5.5.64
         environment:
+                DB_HOST: localhost
+                DB_PASSWORD: passw0rd
+                DB_USER: user
+                DB_ROOT_PASSWORD: root
                 DATABASE_NAME: user
                 MYSQL_ROOT_PASSWORD: root
                 MYSQL_DATABASE: user
-                MYSQL_USER: dbuser
+                MYSQL_USER: user
                 MYSQL_PASSWORD: passw0rd
     steps:
       - checkout
