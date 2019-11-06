@@ -86,35 +86,35 @@ def get_auth_token():
 
 
 @app.route('/v1/user', methods=['POST'])
-@statsd.timer('createUser')
 def new_user():
     try:
         statsd.incr('cntrcreateUser')
-        username = request.json.get('email_address')
-        password = request.json.get('password')
+        with statsd.timer('createUser1'):
+            username = request.json.get('email_address')
+            password = request.json.get('password')
 
-        if not check_username(username):
-            status = {'ERROR': 'Invalid Email'}
-            return Response(json.dumps(status), status=400, mimetype='application/json')
+            if not check_username(username):
+                status = {'ERROR': 'Invalid Email'}
+                return Response(json.dumps(status), status=400, mimetype='application/json')
 
-        if not check_password(password):
-            status = {'ERROR': 'Insecure Password'}
-            return Response(json.dumps(status), status=400, mimetype='application/json')
+            if not check_password(password):
+                status = {'ERROR': 'Insecure Password'}
+                return Response(json.dumps(status), status=400, mimetype='application/json')
 
-        if username is None or password is None:
-            status={'ERROR': 'Missing Arguments'}
-            return Response(json.dumps(status), status=400, mimetype='application/json')
+            if username is None or password is None:
+                status={'ERROR': 'Missing Arguments'}
+                return Response(json.dumps(status), status=400, mimetype='application/json')
 
-        if cursor.query(User).filter_by(email_address=username).first() is not None:
-            status = {'ERROR': 'User Error'}
-            return Response(json.dumps(status), status=400, mimetype='application/json')
+            if cursor.query(User).filter_by(email_address=username).first() is not None:
+                status = {'ERROR': 'User Error'}
+                return Response(json.dumps(status), status=400, mimetype='application/json')
 
-        user = User(id=str(uuid.uuid4()), first_name=request.json.get('first_name'), last_name=request.json.get('last_name'),
-                    email_address=username, account_created=str(datetime.now()), account_updated=str(datetime.now()))
-        user.bcrypt_salt_hash(password)
-        cursor.add(user)
-        cursor.commit()
-        return jsonify({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,
+            user = User(id=str(uuid.uuid4()), first_name=request.json.get('first_name'), last_name=request.json.get('last_name'),
+                        email_address=username, account_created=str(datetime.now()), account_updated=str(datetime.now()))
+            user.bcrypt_salt_hash(password)
+            cursor.add(user)
+            cursor.commit()
+            return jsonify({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,
                         'email_address': user.email_address, 'account_created': user.account_created,
                         'account_updated': user.account_updated}), 201
     except Exception as e:
