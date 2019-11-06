@@ -268,7 +268,7 @@ def add_image(id):
             filee=request.files['file']
             if filee.filename=='':
                 status={'ERROR':'No File selected'}
-                return jasonify(status),400
+                return jsonify(status),400
             if filee and allowed_file(filee.filename):
                 recJson,status = get_recipy(cursor, id)
                 if status != 200:
@@ -290,9 +290,11 @@ def add_image(id):
                 img=Image(id=imgId,recipe_id=id,url=img_url,img_metadata=str(s3Obj))
                 cursor.add(img)
                 cursor.commit()
+                logger.debug("Response while adding image /v1/recipe/<id>/image: " + str(jsonify({'id':img.id,'url':img.url}))+" Code: 201")
                 return jsonify({'id':img.id,'url':img.url}), 201
             else:
                 status={'ERROR':'only .png,.jpg,jpeg files are supported'}
+                logger.debug("Response while adding image /v1/recipe/<id>/image: " + str(jsonify(status))+" Code: 400")
                 return jsonify(status), 400
     except Exception as e:
         cursor.rollback()
@@ -309,16 +311,20 @@ def delete_image(recipeId,imageId):
         with statsd.timer('deleteImage'):
             recJson,status = get_recipy(cursor, recipeId)
             if status != 200:
+                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(recJson))+" Code: "+status)
                 return jsonify(recJson),status
             if recJson["author_id"]!=g.user.id:
                status = {'ERROR':'UnAuthorized'}
+               logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(status))+" Code: 401")
                return jsonify(status), 401
             resp, status = delete_img(cursor,imageId,recipeId)
             if status != 204:
+                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp))+" Code: "+status)
                 return jsonify(resp),status
             s3Bucketname="S3_"+aws_config["RECIPE_S3"]
             with statsd.timer(s3Bucketname):
                 s3_resource.Bucket(aws_config["RECIPE_S3"]).delete_objects(Delete={'Objects':[{'Key':imageId}]})
+            logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp))+" Code: "+status)
             return jsonify(resp),status
 
     except Exception as e:
@@ -334,6 +340,7 @@ def get_image(recipeId,imageId):
         statsd.incr('getImage')
         with statsd.timer('getImage'):
              resp,status=get_img(cursor,imageId,recipeId)
+             logger.debug("Response while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp)+" Code: "+status))
              return jsonify(resp),status
     except Exception as e:
         status = {'ERROR': str(e)}
