@@ -69,11 +69,13 @@ def verify_password(username_or_token, password):
     try:
         user_id = User.verify_auth_token(username_or_token)
         if user_id:
-            user = cursor.query(User).filter_by(id=user_id).one()
+            with statsd.timer('DB_User_R'):
+                user = cursor.query(User).filter_by(id=user_id).one()
         else:
-            user = cursor.query(User).filter_by(email_address=username_or_token).first()
-            if not user or not user.verify_password(password):
-                return False
+            with statsd.timer('DB_User_R'):
+                user = cursor.query(User).filter_by(email_address=username_or_token).first()
+                if not user or not user.verify_password(password):
+                    return False
         g.user = user
         return True
     except Exception as e:
@@ -96,8 +98,8 @@ def get_auth_token():
 @app.route('/v1/user', methods=['POST'])
 def new_user():
     try:
-        statsd.incr('createUser',1)
-        with statsd.timer('createUser1'):
+        statsd.incr('createUser')
+        with statsd.timer('createUser'):
             username = request.json.get('email_address')
             password = request.json.get('password')
 
@@ -120,7 +122,8 @@ def new_user():
             user = User(id=str(uuid.uuid4()), first_name=request.json.get('first_name'), last_name=request.json.get('last_name'),
                         email_address=username, account_created=str(datetime.now()), account_updated=str(datetime.now()))
             user.bcrypt_salt_hash(password)
-            cursor.add(user)
+            with statsd.timer('DB_User_W'):
+                cursor.add(user)
             cursor.commit()
             logger.debug("Response /v1/user: " + str(jsonify({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,
                         'email_address': user.email_address, 'account_created': user.account_created,
@@ -173,7 +176,8 @@ def update_user():
                         return Response(json.dumps(status), status=400, mimetype='application/json')
                     g.user.bcrypt_salt_hash(request.json.get('password'))
                 g.user.account_updated = str(datetime.now())
-                cursor.commit()
+                with statsd.timer('DB_User_U'):
+                    cursor.commit()
                 logger.debug("Response updating user update_user() /v1/user/self/: 204")
                 return Response(status=204, mimetype='application/json')
     except Exception as e:
@@ -188,7 +192,7 @@ def add_recipe():
     try:
         statsd.incr('createRecipe')
         with statsd.timer('createRecipe'):
-            retJson = insert_recipe(cursor,request.json,g.user.id)
+            retJson = insert_recipe(cursor,request.json,g.user.id,statsd)
             cursor.commit()
             logger.debug("Response while adding recipe /v1/recipe/: " + str(jsonify(retJson))+" Code: 201")
             return Response(json.dumps(retJson), status=201, mimetype='application/json')
@@ -203,7 +207,7 @@ def get_recipe(id):
     try:
         statsd.incr('getRecipe')
         with statsd.timer('getRecipe'):
-            resp,status=get_recipy(cursor,id)
+            resp,status=get_recipy(cursor,id,statsd)
             logger.debug("Response while getting recipe /v1/recipe/<id>: " + str(jsonify(resp))+" Code: "+status)
             return jsonify(resp),status
     except Exception as e:
@@ -218,7 +222,7 @@ def delete_recipe(id):
     try:
         statsd.incr('deleteRecipe')
         with statsd.timer('deleteRecipe'):
-            resp,status=delete_recipy(cursor, id,g.user.id)
+            resp,status=delete_recipy(cursor, id,g.user.id,statsd)
             logger.debug("Response while deleting recipe /v1/recipe/{id}: " + str(jsonify(resp))+" Code: "+status)
             return jsonify(resp),status
 
@@ -234,15 +238,15 @@ def update_recipe(id):
     try:
         statsd.incr('updateRecipe')
         with statsd.timer('updateRecipe'):
-            recJson,status = get_recipy(cursor, id)
+            recJson,status = get_recipy(cursor, id,statsd)
             if status != 200:
                 return jsonify(recJson),status
             recpID = recJson["id"]
             createdTime = recJson["created_ts"]
 
-            resp,stat =  delete_recipy(cursor, id,g.user.id)
+            resp,stat =  delete_recipy(cursor, id,g.user.id,statsd)
             if stat==204:
-                retJson = insert_recipe(cursor,request.json,g.user.id, recpID, createdTime)
+                retJson = insert_recipe(cursor,request.json,g.user.id,statsd, recpID, createdTime)
                 cursor.commit()
                 logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(jsonify(retJson))+" Code: "+stat)
                 return Response(json.dumps(retJson), status=204, mimetype='application/json')
@@ -277,7 +281,7 @@ def add_image(id):
                 if recJson["author_id"]!=g.user.id:
                    status = {'ERROR':'UnAuthorized'}
                    return jsonify(status), 401
-                imgIds=delete_img_recipe(cursor,id)
+                imgIds=delete_img_recipe(cursor,id,statsd)
                 s3Bucketname="S3_"+aws_config["RECIPE_S3"]
                 for imgId in imgIds:
                     with statsd.timer(s3Bucketname):
@@ -309,7 +313,7 @@ def delete_image(recipeId,imageId):
     try:
         statsd.incr('deleteImage')
         with statsd.timer('deleteImage'):
-            recJson,status = get_recipy(cursor, recipeId)
+            recJson,status = get_recipy(cursor, recipeId,statsd)
             if status != 200:
                 logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(recJson))+" Code: "+status)
                 return jsonify(recJson),status
@@ -317,7 +321,7 @@ def delete_image(recipeId,imageId):
                status = {'ERROR':'UnAuthorized'}
                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(status))+" Code: 401")
                return jsonify(status), 401
-            resp, status = delete_img(cursor,imageId,recipeId)
+            resp, status = delete_img(cursor,imageId,recipeId,statsd)
             if status != 204:
                 logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp))+" Code: "+status)
                 return jsonify(resp),status
@@ -338,7 +342,7 @@ def get_image(recipeId,imageId):
     try:
         statsd.incr('getImage')
         with statsd.timer('getImage'):
-             resp,status=get_img(cursor,imageId,recipeId)
+             resp,status=get_img(cursor,imageId,recipeId,statsd)
              logger.debug("Response while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp)+" Code: "+status))
              return jsonify(resp),status
     except Exception as e:
