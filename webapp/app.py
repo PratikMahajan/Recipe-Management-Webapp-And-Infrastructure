@@ -268,10 +268,11 @@ def add_image(id):
                 for imgId in imgIds:
                     with statsd.timer(s3Bucketname):
                         s3_resource.Bucket(aws_config["RECIPE_S3"]).delete_objects(Delete={'Objects':[{'Key':imgId}]})
-                        imgId=str(uuid.uuid4())
-                        #s3_resource = boto3.resource('s3')
-                        s3_resource.Bucket(aws_config["RECIPE_S3"]).put_object(Key=imgId,Body=filee)
-                        s3Obj=boto3.client('s3').head_object(Bucket=aws_config["RECIPE_S3"],Key=imgId)
+                imgId=str(uuid.uuid4())
+                with statsd.timer(s3Bucketname):
+                    #s3_resource = boto3.resource('s3')
+                    s3_resource.Bucket(aws_config["RECIPE_S3"]).put_object(Key=imgId,Body=filee)
+                    s3Obj=boto3.client('s3').head_object(Bucket=aws_config["RECIPE_S3"],Key=imgId)
                 img_url="https://s3.amazonaws.com/"+aws_config["RECIPE_S3"]+"/"+imgId
                 img=Image(id=imgId,recipe_id=id,url=img_url,img_metadata=str(s3Obj))
                 cursor.add(img)
@@ -305,7 +306,7 @@ def delete_image(recipeId,imageId):
             s3Bucketname="S3_"+aws_config["RECIPE_S3"]
             with statsd.timer(s3Bucketname):
                 s3_resource.Bucket(aws_config["RECIPE_S3"]).delete_objects(Delete={'Objects':[{'Key':imageId}]})
-                return jsonify(resp),status
+            return jsonify(resp),status
 
     except Exception as e:
         status = {'ERROR': str(e)}
