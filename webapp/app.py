@@ -14,7 +14,7 @@ from datetime import datetime
 from flask_httpauth import HTTPBasicAuth
 from config.loggingfilter import *
 from config.logger import *
-import logging
+#import logging
 from config.envvar import *
 import json
 import re
@@ -34,10 +34,12 @@ statsd = StatsClient(host='localhost', port=8125, prefix='stats')
 
 app = Flask(__name__)
 
-if __name__ != '__main__':
-    gunicorn_logger = logging.getLogger(‘gunicorn.error’)
-    app.logger.handlers = gunicorn_logger.handlers
-    app.logger.setLevel(gunicorn_logger.level)
+#gunicorn_error_handlers = logging.getLogger('gunicorn.error').handlers
+#app.logger.handlers.extend(gunicorn_error_handlers )
+##gunicorn_error_logger = logging.getLogger('gunicorn.error')
+##app.logger.handlers.extend(gunicorn_error_logger.handlers)
+#app.logger.setLevel(logging.INFO)
+#logger.debug('this will show in the log')
 
 def get_db():
     Base.metadata.bind = engine
@@ -75,7 +77,7 @@ def verify_password(username_or_token, password):
         g.user = user
         return True
     except Exception as e:
-        app.logger.debug("Exception in verify_password: "+str(e))
+        logger.debug("Exception in verify_password: "+str(e))
         return False
 
 
@@ -87,7 +89,7 @@ def get_auth_token():
         status = {'token': token.decode('ascii')}
         return Response(json.dumps(status), status=200, mimetype='application/json')
     except Exception as e:
-        app.logger.debug("Exception in get_auth_token: "+str(e))
+        logger.debug("Exception in get_auth_token: "+str(e))
         return Response(status=403, mimetype='application/json')
 
 
@@ -120,7 +122,7 @@ def new_user():
             user.bcrypt_salt_hash(password)
             cursor.add(user)
             cursor.commit()
-            app.logger.debug("Response /v1/user: " + str(jsonify({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,
+            logger.debug("Response /v1/user: " + str(jsonify({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,
                         'email_address': user.email_address, 'account_created': user.account_created,
                         'account_updated': user.account_updated}))+" Code: "+str(201))
             return jsonify({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,
@@ -129,7 +131,7 @@ def new_user():
     except Exception as e:
         cursor.rollback()
         status = {'ERROR': str(e)}
-        app.logger.debug("Exception in creating user /v1/user: " + str(e))
+        logger.debug("Exception in creating user /v1/user: " + str(e))
         return Response(json.dumps(status), status=400, mimetype='application/json')
 
 
@@ -139,14 +141,14 @@ def get_user():
     try:
         statsd.incr('getUser')
         with statsd.timer('getUser'):
-            app.logger.debug("Response get_user() /v1/user/self/: " + str(jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
+            logger.debug("Response get_user() /v1/user/self/: " + str(jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
                         'email_address': g.user.email_address, 'account_created': g.user.account_created,
                         'account_updated': g.user.account_updated}))+" Code: "+str(200))
             return jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
                         'email_address': g.user.email_address, 'account_created': g.user.account_created,
                         'account_updated': g.user.account_updated}), 200
     except Exception as e:
-        app.logger.debug("Exception in getting user get_user() /v1/user/self/: " + str(e))
+        logger.debug("Exception in getting user get_user() /v1/user/self/: " + str(e))
         return Response(status=400, mimetype='application/json')
 
 
@@ -167,16 +169,16 @@ def update_user():
                 if request.json.get('password') is not None:
                     if not check_password(request.json.get('password')):
                         status = {'ERROR': 'Insecure Password'}
-                        app.logger.debug("Response updating user update_user() /v1/user/self/: "+str(jsonify(status))+" Code : 400")
+                        logger.debug("Response updating user update_user() /v1/user/self/: "+str(jsonify(status))+" Code : 400")
                         return Response(json.dumps(status), status=400, mimetype='application/json')
                     g.user.bcrypt_salt_hash(request.json.get('password'))
                 g.user.account_updated = str(datetime.now())
                 cursor.commit()
-                app.logger.debug("Response updating user update_user() /v1/user/self/: 204")
+                logger.debug("Response updating user update_user() /v1/user/self/: 204")
                 return Response(status=204, mimetype='application/json')
     except Exception as e:
         cursor.rollback()
-        app.logger.debug("Exception in updating user update_user() /v1/user/self/: " + str(e))
+        logger.debug("Exception in updating user update_user() /v1/user/self/: " + str(e))
         return Response(status=400, mimetype='application/json')
 
 
@@ -188,11 +190,11 @@ def add_recipe():
         with statsd.timer('createRecipe'):
             retJson = insert_recipe(cursor,request.json,g.user.id)
             cursor.commit()
-            app.logger.debug("Response while adding recipe /v1/recipe/: " + str(jsonify(retJson))+" Code: 201")
+            logger.debug("Response while adding recipe /v1/recipe/: " + str(jsonify(retJson))+" Code: 201")
             return Response(json.dumps(retJson), status=201, mimetype='application/json')
 
     except Exception as e:
-        app.logger.debug("Exception while adding recipe /v1/recipe/: " + str(e))
+        logger.debug("Exception while adding recipe /v1/recipe/: " + str(e))
         return Response(status=400, mimetype='application/json')
 
 
@@ -202,11 +204,11 @@ def get_recipe(id):
         statsd.incr('getRecipe')
         with statsd.timer('getRecipe'):
             resp,status=get_recipy(cursor,id)
-            app.logger.debug("Response while getting recipe /v1/recipe/<id>: " + str(jsonify(resp))+" Code: "+status)
+            logger.debug("Response while getting recipe /v1/recipe/<id>: " + str(jsonify(resp))+" Code: "+status)
             return jsonify(resp),status
     except Exception as e:
         status = {'ERROR': str(e)}
-        app.logger.debug("Exception while getting recipe /v1/recipe/<id>: " + str(e))
+        logger.debug("Exception while getting recipe /v1/recipe/<id>: " + str(e))
         return Response(json.dumps(status), status=404, mimetype='application/json')
 
 
@@ -217,12 +219,12 @@ def delete_recipe(id):
         statsd.incr('deleteRecipe')
         with statsd.timer('deleteRecipe'):
             resp,status=delete_recipy(cursor, id,g.user.id)
-            app.logger.debug("Response while deleting recipe /v1/recipe/{id}: " + str(jsonify(resp))+" Code: "+status)
+            logger.debug("Response while deleting recipe /v1/recipe/{id}: " + str(jsonify(resp))+" Code: "+status)
             return jsonify(resp),status
 
     except Exception as e:
         status = {'ERROR': str(e)}
-        app.logger.debug("Exception while deleting recipe /v1/recipe/{id}: " + str(e))
+        logger.debug("Exception while deleting recipe /v1/recipe/{id}: " + str(e))
         return Response(json.dumps(status), status=400, mimetype='application/json')
 
 
@@ -242,16 +244,16 @@ def update_recipe(id):
             if stat==204:
                 retJson = insert_recipe(cursor,request.json,g.user.id, recpID, createdTime)
                 cursor.commit()
-                app.logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(jsonify(retJson))+" Code: "+stat)
+                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(jsonify(retJson))+" Code: "+stat)
                 return Response(json.dumps(retJson), status=204, mimetype='application/json')
             else:
-                app.logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(jsonify(resp))+" Code: "+stat)
+                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(jsonify(resp))+" Code: "+stat)
                 return jsonify(resp),stat
 
     except Exception as e:
         cursor.rollback()
         status = {'ERROR': str(e)}
-        app.logger.debug("Exception while updating recipe /v1/recipe/{id}: " + str(e))
+        logger.debug("Exception while updating recipe /v1/recipe/{id}: " + str(e))
         return Response(json.dumps(status), status=400, mimetype='application/json')
 
 
@@ -289,16 +291,16 @@ def add_image(id):
                 img=Image(id=imgId,recipe_id=id,url=img_url,img_metadata=str(s3Obj))
                 cursor.add(img)
                 cursor.commit()
-                app.logger.debug("Response while adding image /v1/recipe/<id>/image: " + str(jsonify({'id':img.id,'url':img.url}))+" Code: 201")
+                logger.debug("Response while adding image /v1/recipe/<id>/image: " + str(jsonify({'id':img.id,'url':img.url}))+" Code: 201")
                 return jsonify({'id':img.id,'url':img.url}), 201
             else:
                 status={'ERROR':'only .png,.jpg,jpeg files are supported'}
-                app.logger.debug("Response while adding image /v1/recipe/<id>/image: " + str(jsonify(status))+" Code: 400")
+                logger.debug("Response while adding image /v1/recipe/<id>/image: " + str(jsonify(status))+" Code: 400")
                 return jsonify(status), 400
     except Exception as e:
         cursor.rollback()
         status = {'ERROR': str(e)}
-        app.logger.debug("Exception while adding image /v1/recipe/<id>/image: " + str(e))
+        logger.debug("Exception while adding image /v1/recipe/<id>/image: " + str(e))
         return Response(json.dumps(status), status=400, mimetype='application/json')
 
 @app.route('/v1/recipe/<recipeId>/image/<imageId>', methods=['DELETE'])
@@ -309,25 +311,25 @@ def delete_image(recipeId,imageId):
         with statsd.timer('deleteImage'):
             recJson,status = get_recipy(cursor, recipeId)
             if status != 200:
-                app.logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(recJson))+" Code: "+status)
+                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(recJson))+" Code: "+status)
                 return jsonify(recJson),status
             if recJson["author_id"]!=g.user.id:
                status = {'ERROR':'UnAuthorized'}
-               app.logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(status))+" Code: 401")
+               logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(status))+" Code: 401")
                return jsonify(status), 401
             resp, status = delete_img(cursor,imageId,recipeId)
             if status != 204:
-                app.logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp))+" Code: "+status)
+                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp))+" Code: "+status)
                 return jsonify(resp),status
             s3Bucketname="S3_"+aws_config["RECIPE_S3"]
             with statsd.timer(s3Bucketname):
                 s3_resource.Bucket(aws_config["RECIPE_S3"]).delete_objects(Delete={'Objects':[{'Key':imageId}]})
-            app.logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp))+" Code: "+status)
+            logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp))+" Code: "+status)
             return jsonify(resp),status
 
     except Exception as e:
         status = {'ERROR': str(e)}
-        app.logger.debug("Exception while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(e))
+        logger.debug("Exception while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(e))
         return Response(json.dumps(status), status=400, mimetype='application/json')
 
         
@@ -337,11 +339,11 @@ def get_image(recipeId,imageId):
         statsd.incr('getImage')
         with statsd.timer('getImage'):
              resp,status=get_img(cursor,imageId,recipeId)
-             app.logger.debug("Response while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp)+" Code: "+status))
+             logger.debug("Response while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp)+" Code: "+status))
              return jsonify(resp),status
     except Exception as e:
         status = {'ERROR': str(e)}
-        app.logger.debug("Exception while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(e))
+        logger.debug("Exception while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(e))
         return Response(json.dumps(status), status=404, mimetype='application/json')
         
 @app.route('/health', methods=['GET', 'POST'])
@@ -353,4 +355,7 @@ def health_probe() -> Response:
 
 
 if __name__ == '__main__':
+#    #gunicorn_logger = logging.getLogger('gunicorn.error')
+#    #app.logger.handlers = gunicorn_logger.handlers
+#    #app.logger.setLevel(gunicorn_logger.level)
     app.run(debug=True, host='0.0.0.0', port=8080)
