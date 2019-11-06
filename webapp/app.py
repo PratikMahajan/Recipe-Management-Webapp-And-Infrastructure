@@ -129,7 +129,6 @@ def new_user():
 
 @app.route('/v1/user/self', methods=['GET'])
 @auth.login_required
-@statsd.timer('getUser')
 def get_user():
     try:
         statsd.incr('getUser')
@@ -147,7 +146,6 @@ def get_user():
 
 @app.route('/v1/user/self', methods=['PUT'])
 @auth.login_required
-@statsd.timer('updateUser')
 def update_user():
     try:
         statsd.incr('updateUser')
@@ -178,7 +176,6 @@ def update_user():
 
 @app.route('/v1/recipe/', methods=['POST'])
 @auth.login_required
-@statsd.timer('createRecipe')
 def add_recipe():
     try:
         statsd.incr('createRecipe')
@@ -194,7 +191,6 @@ def add_recipe():
 
 
 @app.route('/v1/recipe/<id>', methods=['GET'])
-@statsd.timer('getRecipe')
 def get_recipe(id):
     try:
         statsd.incr('getRecipe')
@@ -210,7 +206,6 @@ def get_recipe(id):
 
 @app.route('/v1/recipe/<id>', methods=['DELETE'])
 @auth.login_required
-@statsd.timer('deleteRecipe')
 def delete_recipe(id):
     try:
         statsd.incr('deleteRecipe')
@@ -227,7 +222,6 @@ def delete_recipe(id):
 
 @app.route('/v1/recipe/<id>', methods=['PUT'])
 @auth.login_required
-@statsd.timer('updateRecipe')
 def update_recipe(id):
     try:
         statsd.incr('updateRecipe')
@@ -257,7 +251,6 @@ def update_recipe(id):
 
 @app.route('/v1/recipe/<id>/image', methods=['POST'])
 @auth.login_required
-@statsd.timer('addImage')
 def add_image(id):
     try:
         statsd.incr('addImage')
@@ -304,7 +297,6 @@ def add_image(id):
 
 @app.route('/v1/recipe/<recipeId>/image/<imageId>', methods=['DELETE'])
 @auth.login_required
-@statsd.timer('deleteImage')
 def delete_image(recipeId,imageId):
     try:
         statsd.incr('deleteImage')
@@ -334,7 +326,6 @@ def delete_image(recipeId,imageId):
 
         
 @app.route('/v1/recipe/<recipeId>/image/<imageId>', methods=['GET'])
-@statsd.timer('getImage')
 def get_image(recipeId,imageId):
     try:
         statsd.incr('getImage')
