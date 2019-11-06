@@ -185,6 +185,7 @@ def add_recipe():
         with statsd.timer('createRecipe'):
             retJson = insert_recipe(cursor,request.json,g.user.id)
             cursor.commit()
+            logger.debug("Response while adding recipe /v1/recipe/: " + str(jsonify(retJson))+" Code: 201")
             return Response(json.dumps(retJson), status=201, mimetype='application/json')
 
     except Exception as e:
@@ -199,6 +200,7 @@ def get_recipe(id):
         statsd.incr('getRecipe')
         with statsd.timer('getRecipe'):
             resp,status=get_recipy(cursor,id)
+            logger.debug("Response while getting recipe /v1/recipe/<id>: " + str(jsonify(resp))+" Code: "+status)
             return jsonify(resp),status
     except Exception as e:
         status = {'ERROR': str(e)}
@@ -214,6 +216,7 @@ def delete_recipe(id):
         statsd.incr('deleteRecipe')
         with statsd.timer('deleteRecipe'):
             resp,status=delete_recipy(cursor, id,g.user.id)
+            logger.debug("Response while deleting recipe /v1/recipe/{id}: " + str(jsonify(resp))+" Code: "+status)
             return jsonify(resp),status
 
     except Exception as e:
@@ -239,8 +242,10 @@ def update_recipe(id):
             if stat==204:
                 retJson = insert_recipe(cursor,request.json,g.user.id, recpID, createdTime)
                 cursor.commit()
+                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(jsonify(retJson))+" Code: "+stat)
                 return Response(json.dumps(retJson), status=204, mimetype='application/json')
             else:
+                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(jsonify(resp))+" Code: "+stat)
                 return jsonify(resp),stat
 
     except Exception as e:
