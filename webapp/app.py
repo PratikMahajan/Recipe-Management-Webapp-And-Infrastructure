@@ -284,7 +284,8 @@ def add_image(id):
                     s3Obj=boto3.client('s3').head_object(Bucket=aws_config["RECIPE_S3"],Key=imgId)
                 img_url="https://s3.amazonaws.com/"+aws_config["RECIPE_S3"]+"/"+imgId
                 img=Image(id=imgId,recipe_id=id,url=img_url,img_metadata=str(s3Obj))
-                cursor.add(img)
+                with statsd.timer("DB_Image_W"):
+                    cursor.add(img)
                 cursor.commit()
                 logger.debug("Response while adding image /v1/recipe/<id>/image: " + str({'id':img.id,'url':img.url})+" Code: 201")
                 return jsonify({'id':img.id,'url':img.url}), 201
