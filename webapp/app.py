@@ -267,7 +267,7 @@ def add_image(id):
                 status={'ERROR':'No File selected'}
                 return jsonify(status),400
             if filee and allowed_file(filee.filename):
-                recJson,status = get_recipy(cursor, id)
+                recJson,status = get_recipy(cursor, id,statsd)
                 if status != 200:
                     return jsonify(recJson),status
                 if recJson["author_id"]!=g.user.id:
