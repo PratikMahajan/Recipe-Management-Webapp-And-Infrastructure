@@ -124,7 +124,7 @@ def new_user():
         return Response(json.dumps(status), status=400, mimetype='application/json')
 
 
-@app.route('/v2/user/self', methods=['GET'])
+@app.route('/v1/user/self', methods=['GET'])
 @auth.login_required
 @statsd.timer('getUser')
 def get_user():
