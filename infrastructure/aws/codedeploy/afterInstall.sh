@@ -16,6 +16,7 @@ sudo chown -R centos:centos /home/centos/logs/
 sudo mv /home/centos/webapp/gunicorn.service /etc/systemd/system/
 sudo systemctl daemon-reload >/dev/null 2>&1
 sudo systemctl start gunicorn >/dev/null 2>&1
+sudo systemctl start amazon-cloudwatch-agent >/dev/null 2>&1
 #sudo systemctl status gunicorn
 
 sudo cp /home/centos/webapp/Caddyfile /etc/caddy/
