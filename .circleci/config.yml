@@ -96,6 +96,8 @@ jobs:
           name: Testing
           command: |
             cd webapp
+            mkdir logs
+            touch logs/gunicorn.log
             sudo pip install -r requirements.txt
             export DB_HOST=localhost
             echo $DB_HOST
