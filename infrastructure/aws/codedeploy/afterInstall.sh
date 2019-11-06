@@ -9,11 +9,8 @@ if [ -d "$dir_name" ]; then
     echo "Removing $dir_name"
     rm -rf "$dir_name"
 fi
-sudo mkdir -p /home/centos/webapp/logs
 sudo mkdir -p /home/centos/logs
-sudo touch /home/centos/webapp/logs/gunicorn.log
 sudo touch /home/centos/logs/gunicorn.log
-sudo chown -R centos:centos /home/centos/webapp/logs/
 sudo chown -R centos:centos /home/centos/logs/
 
 sudo mv /home/centos/webapp/gunicorn.service /etc/systemd/system/
