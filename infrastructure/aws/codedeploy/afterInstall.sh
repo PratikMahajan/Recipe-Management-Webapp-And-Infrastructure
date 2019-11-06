@@ -4,14 +4,14 @@
 sudo chown -R centos:centos /home/centos/webapp/
 pip3 install -r /home/centos/webapp/scripts/requirements.txt --user 2>&1
 
-dir_name=/home/centos/logs
+dir_name=/home/centos/webapp/logs
 if [ -d "$dir_name" ]; then
     echo "Removing $dir_name"
     rm -rf "$dir_name"
 fi
-sudo mkdir -p /home/centos/logs
-sudo touch /home/centos/logs/gunicorn.log
-sudo chown -R centos:centos /home/centos/logs/
+sudo mkdir -p /home/centos/webapp/logs
+sudo touch /home/centos/webapp/logs/gunicorn.log
+sudo chown -R centos:centos /home/centos/webapp/logs/
 
 sudo mv /home/centos/webapp/gunicorn.service /etc/systemd/system/
 sudo systemctl daemon-reload >/dev/null 2>&1
