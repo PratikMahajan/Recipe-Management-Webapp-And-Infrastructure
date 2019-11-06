@@ -29,7 +29,7 @@ engine = create_engine('mysql+pymysql://'+db_config["DB_USER"]+':'+db_config["DB
 
 s3_resource = boto3.resource("s3", aws_access_key_id=aws_config["AWS_ACCESS_KEY_ID"], aws_secret_access_key=aws_config["AWS_SECRET_ACCESS_KEY"])
 
-statsd = StatsClient(host='localhost', port=8125, prefix='webapp')
+statsd = StatsClient(host='localhost', port=8125, prefix='stats')
 
 app = Flask(__name__)
 
@@ -88,7 +88,7 @@ def get_auth_token():
 @app.route('/v1/user', methods=['POST'])
 def new_user():
     try:
-        statsd.incr('createUser')
+        statsd.incr('createUser',1)
         with statsd.timer('createUser1'):
             username = request.json.get('email_address')
             password = request.json.get('password')
