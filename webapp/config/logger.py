@@ -3,7 +3,7 @@ import logging
 
 # Logging Config
 
-logger = logging.getLogger("gunicorn.error")
+logger = logging.getLogger("recipe-api-logger")
 logger.setLevel(logging.DEBUG)
 
 # create console handler and set level to debug
@@ -27,4 +27,4 @@ logFormatter = logging.Formatter(fmt, datefmt="%m/%d/%Y %I:%M:%S %p %Z")
 fileHandler = logging.FileHandler(logFile)
 fileHandler.setLevel(logging.DEBUG)
 fileHandler.setFormatter(logFormatter)
-logger.addHandler(logger)
+logger.addHandler(fileHandler)
