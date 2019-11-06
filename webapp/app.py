@@ -14,7 +14,6 @@ from datetime import datetime
 from flask_httpauth import HTTPBasicAuth
 from config.loggingfilter import *
 from config.logger import *
-#import logging
 from config.envvar import *
 import json
 import re
@@ -33,13 +32,6 @@ s3_resource = boto3.resource("s3", aws_access_key_id=aws_config["AWS_ACCESS_KEY_
 statsd = StatsClient(host='localhost', port=8125, prefix='stats')
 
 app = Flask(__name__)
-
-#gunicorn_error_handlers = logging.getLogger('gunicorn.error').handlers
-#app.logger.handlers.extend(gunicorn_error_handlers )
-#gunicorn_error_logger = logging.getLogger('gunicorn.error')
-#app.logger.handlers.extend(gunicorn_error_logger.handlers)
-#app.logger.setLevel(logging.INFO)
-#logger.debug('this will show in the log')
 
 def get_db():
     Base.metadata.bind = engine
@@ -125,9 +117,9 @@ def new_user():
             with statsd.timer('DB_User_W'):
                 cursor.add(user)
             cursor.commit()
-            logger.debug("Response /v1/user: " + str(jsonify({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,
+            logger.debug("Response /v1/user: " + str({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,
                         'email_address': user.email_address, 'account_created': user.account_created,
-                        'account_updated': user.account_updated}))+" Code: "+str(201))
+                        'account_updated': user.account_updated})+" Code: "+str(201))
             return jsonify({'id': user.id, 'first_name': user.first_name, 'last_name': user.last_name,
                         'email_address': user.email_address, 'account_created': user.account_created,
                         'account_updated': user.account_updated}), 201
@@ -144,9 +136,9 @@ def get_user():
     try:
         statsd.incr('getUser')
         with statsd.timer('getUser'):
-            logger.debug("Response get_user() /v1/user/self/: " + str(jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
+            logger.debug("Response get_user() /v1/user/self/: " + str({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
                         'email_address': g.user.email_address, 'account_created': g.user.account_created,
-                        'account_updated': g.user.account_updated}))+" Code: "+str(200))
+                        'account_updated': g.user.account_updated})+" Code: "+str(200))
             return jsonify({'id': g.user.id, 'first_name': g.user.first_name, 'last_name': g.user.last_name,
                         'email_address': g.user.email_address, 'account_created': g.user.account_created,
                         'account_updated': g.user.account_updated}), 200
@@ -172,7 +164,7 @@ def update_user():
                 if request.json.get('password') is not None:
                     if not check_password(request.json.get('password')):
                         status = {'ERROR': 'Insecure Password'}
-                        logger.debug("Response updating user update_user() /v1/user/self/: "+str(jsonify(status))+" Code : 400")
+                        logger.debug("Response updating user update_user() /v1/user/self/: "+str(status)+" Code : 400")
                         return Response(json.dumps(status), status=400, mimetype='application/json')
                     g.user.bcrypt_salt_hash(request.json.get('password'))
                 g.user.account_updated = str(datetime.now())
@@ -194,7 +186,7 @@ def add_recipe():
         with statsd.timer('createRecipe'):
             retJson = insert_recipe(cursor,request.json,g.user.id,statsd)
             cursor.commit()
-            logger.debug("Response while adding recipe /v1/recipe/: " + str(jsonify(retJson))+" Code: 201")
+            logger.debug("Response while adding recipe /v1/recipe/: " + str(retJson)+" Code: 201")
             return Response(json.dumps(retJson), status=201, mimetype='application/json')
 
     except Exception as e:
@@ -208,7 +200,7 @@ def get_recipe(id):
         statsd.incr('getRecipe')
         with statsd.timer('getRecipe'):
             resp,status=get_recipy(cursor,id,statsd)
-            logger.debug("Response while getting recipe /v1/recipe/<id>: " + str(jsonify(resp))+" Code: "+status)
+            logger.debug("Response while getting recipe /v1/recipe/<id>: " + str(resp)+" Code: "+status)
             return jsonify(resp),status
     except Exception as e:
         status = {'ERROR': str(e)}
@@ -223,7 +215,7 @@ def delete_recipe(id):
         statsd.incr('deleteRecipe')
         with statsd.timer('deleteRecipe'):
             resp,status=delete_recipy(cursor, id,g.user.id,statsd)
-            logger.debug("Response while deleting recipe /v1/recipe/{id}: " + str(jsonify(resp))+" Code: "+status)
+            logger.debug("Response while deleting recipe /v1/recipe/{id}: " + str(resp)+" Code: "+status)
             return jsonify(resp),status
 
     except Exception as e:
@@ -248,10 +240,10 @@ def update_recipe(id):
             if stat==204:
                 retJson = insert_recipe(cursor,request.json,g.user.id,statsd, recpID, createdTime)
                 cursor.commit()
-                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(jsonify(retJson))+" Code: "+stat)
+                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(retJson)+" Code: "+stat)
                 return Response(json.dumps(retJson), status=204, mimetype='application/json')
             else:
-                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(jsonify(resp))+" Code: "+stat)
+                logger.debug("Response while updating recipe /v1/recipe/{id}: " + str(resp)+" Code: "+stat)
                 return jsonify(resp),stat
 
     except Exception as e:
@@ -288,18 +280,17 @@ def add_image(id):
                         s3_resource.Bucket(aws_config["RECIPE_S3"]).delete_objects(Delete={'Objects':[{'Key':imgId}]})
                 imgId=str(uuid.uuid4())
                 with statsd.timer(s3Bucketname):
-                    #s3_resource = boto3.resource('s3')
                     s3_resource.Bucket(aws_config["RECIPE_S3"]).put_object(Key=imgId,Body=filee)
                     s3Obj=boto3.client('s3').head_object(Bucket=aws_config["RECIPE_S3"],Key=imgId)
                 img_url="https://s3.amazonaws.com/"+aws_config["RECIPE_S3"]+"/"+imgId
                 img=Image(id=imgId,recipe_id=id,url=img_url,img_metadata=str(s3Obj))
                 cursor.add(img)
                 cursor.commit()
-                logger.debug("Response while adding image /v1/recipe/<id>/image: " + str(jsonify({'id':img.id,'url':img.url}))+" Code: 201")
+                logger.debug("Response while adding image /v1/recipe/<id>/image: " + str({'id':img.id,'url':img.url})+" Code: 201")
                 return jsonify({'id':img.id,'url':img.url}), 201
             else:
                 status={'ERROR':'only .png,.jpg,jpeg files are supported'}
-                logger.debug("Response while adding image /v1/recipe/<id>/image: " + str(jsonify(status))+" Code: 400")
+                logger.debug("Response while adding image /v1/recipe/<id>/image: " + str(status)+" Code: 400")
                 return jsonify(status), 400
     except Exception as e:
         cursor.rollback()
@@ -315,20 +306,20 @@ def delete_image(recipeId,imageId):
         with statsd.timer('deleteImage'):
             recJson,status = get_recipy(cursor, recipeId,statsd)
             if status != 200:
-                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(recJson))+" Code: "+status)
+                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(recJson)+" Code: "+status)
                 return jsonify(recJson),status
             if recJson["author_id"]!=g.user.id:
                status = {'ERROR':'UnAuthorized'}
-               logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(status))+" Code: 401")
+               logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(status)+" Code: 401")
                return jsonify(status), 401
             resp, status = delete_img(cursor,imageId,recipeId,statsd)
             if status != 204:
-                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp))+" Code: "+status)
+                logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(resp)+" Code: "+status)
                 return jsonify(resp),status
             s3Bucketname="S3_"+aws_config["RECIPE_S3"]
             with statsd.timer(s3Bucketname):
                 s3_resource.Bucket(aws_config["RECIPE_S3"]).delete_objects(Delete={'Objects':[{'Key':imageId}]})
-            logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp))+" Code: "+status)
+            logger.debug("Response while deleting recipe image /v1/recipe/<recipeId>/image/<imageId>: " + str(resp)+" Code: "+status)
             return jsonify(resp),status
 
     except Exception as e:
@@ -343,7 +334,7 @@ def get_image(recipeId,imageId):
         statsd.incr('getImage')
         with statsd.timer('getImage'):
              resp,status=get_img(cursor,imageId,recipeId,statsd)
-             logger.debug("Response while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(jsonify(resp)+" Code: "+status))
+             logger.debug("Response while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(resp)+" Code: "+status)
              return jsonify(resp),status
     except Exception as e:
         status = {'ERROR': str(e)}
@@ -359,7 +350,4 @@ def health_probe() -> Response:
 
 
 if __name__ == '__main__':
-#    #gunicorn_logger = logging.getLogger('gunicorn.error')
-#    #app.logger.handlers = gunicorn_logger.handlers
-#    #app.logger.setLevel(gunicorn_logger.level)
     app.run(debug=True, host='0.0.0.0', port=8080)
