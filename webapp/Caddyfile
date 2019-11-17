@@ -4,6 +4,7 @@ http://*:80 {
     }
 }
 https://*:443 {
+    tls /home/centos/cert/cert.pem /home/centos/cert/key.pem
     proxy / http://0.0.0.0:8080 {
         transparent
     }
