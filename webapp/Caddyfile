@@ -3,9 +3,3 @@ http://*:80 {
         transparent
     }
 }
-https://*:443 {
-    tls self_signed
-    proxy / http://0.0.0.0:8080 {
-        transparent
-    }
-}
