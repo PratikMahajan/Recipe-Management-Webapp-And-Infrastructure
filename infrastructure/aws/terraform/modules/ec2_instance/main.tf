@@ -3,7 +3,7 @@ data "aws_ami" "centos" {
   owners = ["${var.aws_account_id}"]
 }
 
-
+// AWS INSTANCE WITHOUT AUTOSCALING
 resource "aws_instance" "webec2" {
   ami                     = data.aws_ami.centos.id
   instance_type           = var.ec2_instance_type
