@@ -178,7 +178,7 @@ def update_user():
         return Response(status=400, mimetype='application/json')
 
 
-@app.route('/v2/recipe/', methods=['POST'])
+@app.route('/v1/recipe/', methods=['POST'])
 @auth.login_required
 def add_recipe():
     try:
