@@ -341,7 +341,36 @@ def get_image(recipeId,imageId):
         status = {'ERROR': str(e)}
         logger.debug("Exception while getting recipe /v1/recipe/<recipeId>/image/<imageId>: " + str(e))
         return Response(json.dumps(status), status=404, mimetype='application/json')
-        
+
+@app.route('/v1/myrecipes', methods=['POST'])
+@auth.login_required
+def my_recipes():
+    try:
+        sns = boto3.client('sns')
+        response = sns.list_topics()
+        topicArn=""
+        for topic in response['Topics']:
+            if topic['TopicArn'].endswith('email_request'):
+                topicArn = topic['TopicArn']
+                logger.debug("TopicArn1"+topicArn)
+                break
+        logger.debug("TopicArn"+topicArn)
+        recipels = my_recipys(cursor,g.user.id,statsd)
+        ls=[]
+        ls.append(g.user.email_address)
+        if len(recipels) > 0:
+            for recip in recipels:
+               ls.append(",")
+               ls.append(recip)
+        msg="".join(ls)
+        sns.publish(TopicArn=topicArn,Message=msg)
+        status = "Request received"
+        return jsonify(status), 200
+    except Exception as e:
+        status = {'ERROR': str(e)}
+        logger.debug("Exception while getting recipe /v1/myrecipes : " + str(e))
+        return Response(json.dumps(status), status=404, mimetype='application/json')
+
 @app.route('/health', methods=['GET', 'POST'])
 @disable_logging
 def health_probe() -> Response:
