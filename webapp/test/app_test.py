@@ -26,6 +26,12 @@ class TestLogin(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
 
 
+#    def test_user_can_be_retrieved_when_correct_credentials_are_entered(self):
+#        response = self.app.get(
+#            '/v1/user/self', headers={'Authorization': 'Basic ' + self.valid_credentials})
+#        self.assertEqual(response.status, '200 OK')
+
+
     def test_user_can_be_retrieved_when_invalid_credentials_are_entered(self):
         response = self.app.get(
             '/v1/user/self', headers={'Authorization': 'Basic ' + self.invalid_password})
