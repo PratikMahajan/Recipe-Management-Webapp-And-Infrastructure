@@ -15,9 +15,9 @@
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">1</stringProp>
+          <stringProp name="LoopController.loops">5</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">500</stringProp>
+        <stringProp name="ThreadGroup.num_threads">1000</stringProp>
         <stringProp name="ThreadGroup.ramp_time">100</stringProp>
         <longProp name="ThreadGroup.start_time">1574135437000</longProp>
         <longProp name="ThreadGroup.end_time">1574135437000</longProp>
@@ -67,13 +67,13 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">webapp.prod.ashitaj.me</stringProp>
+          <stringProp name="HTTPSampler.domain">webapp.prod.vada.pw</stringProp>
           <stringProp name="HTTPSampler.port"></stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/v1/recipe</stringProp>
+          <stringProp name="HTTPSampler.path">v1/recipe/</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -129,15 +129,8 @@
             <collectionProp name="AuthManager.auth_list">
               <elementProp name="" elementType="Authorization">
                 <stringProp name="Authorization.url"></stringProp>
-                <stringProp name="Authorization.username"></stringProp>
-                <stringProp name="Authorization.password"></stringProp>
-                <stringProp name="Authorization.domain"></stringProp>
-                <stringProp name="Authorization.realm"></stringProp>
-              </elementProp>
-              <elementProp name="" elementType="Authorization">
-                <stringProp name="Authorization.url"></stringProp>
-                <stringProp name="Authorization.username">test14@mytest.com</stringProp>
-                <stringProp name="Authorization.password">P@ssword11</stringProp>
+                <stringProp name="Authorization.username">mhjn.prtk@gmail.com</stringProp>
+                <stringProp name="Authorization.password">123@Abcd</stringProp>
                 <stringProp name="Authorization.domain"></stringProp>
                 <stringProp name="Authorization.realm"></stringProp>
               </elementProp>
