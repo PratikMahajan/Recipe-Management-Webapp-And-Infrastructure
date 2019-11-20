@@ -245,3 +245,13 @@ def get_img(cursor,imgId,rId,statsd):
         logger.debug("Exception in getting recipe image: " + str(e))
         raise Exception(str(e))
 
+def my_recipys(cursor,authId,statsd):
+    try:
+        recipels=[]
+        recipes = cursor.query(Recipe).filter_by(author_id=authId)
+        for recipe in recipes:
+            recipels.append(recipe.id)
+        return recipels
+    except Exception as e:
+        logger.debug("Exception in getting myrecipes: " + str(e))
+        raise Exception(str(e))
