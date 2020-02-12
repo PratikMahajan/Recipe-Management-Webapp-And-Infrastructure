@@ -1,19 +1,10 @@
-# CSYE 6225 - Fall 2019
-
-## Team Information
-
-| Name | NEU ID | Email Address |
-| --- | --- | --- |
-| Pratik Mahajan | 001886367 | pratik@mahajan.xyz |
-| Akash Jagtap | 001832752 | jagtap.ak@northeastern.edu |
-| Ashita Jagasia | 001821956 | jagasia.a@husky.neu.edu |
+# Recipe Management Webapp
 
 ## Technology Stack
 
 1. Python Flask
-2. Postman
-3. Nosetest for testing
-4. Mariadb (MySQL)
+2. Nosetest for testing
+3. Mariadb (MySQL)
 
 ## Build Instructions
 ### Python Environment
@@ -76,7 +67,3 @@ Enter the Database shell using
 ```shell script
 make db-shell
 ```
-
-## CI/CD
-```
-
